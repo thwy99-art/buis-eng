@@ -2,6 +2,8 @@
 <html lang="ko" data-theme="light">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>3분 업무 영어</title>
 <style>
@@ -70,8 +72,8 @@
   .today-status-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
   .today-done-badge{font-size:12px;font-weight:600;color:var(--success);background:rgba(0,184,116,0.1);border:1px solid rgba(0,184,116,0.2);border-radius:20px;padding:4px 12px}
   .today-done-badge.pending{color:var(--text2);background:var(--surface2);border-color:var(--border)}
-  .stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-  .stat-card{background:var(--surface2);border-radius:14px;padding:14px;text-align:center}
+  .stats-row{display:flex;gap:8px}
+  .stat-card{width:calc(33.333% - 6px);flex-shrink:0;background:var(--surface2);border-radius:14px;padding:12px 6px;text-align:center;overflow:hidden}
   .stat-number{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:var(--accent);line-height:1}
   .stat-label{font-size:11px;color:var(--text2);margin-top:4px}
 
@@ -407,16 +409,16 @@
           <span class="today-done-badge pending" id="today-done-badge">오늘 아직</span>
         </div>
         <div class="weekly-row" id="weekly-dots"></div>
-        <div class="stats-row">
-          <div class="stat-card">
+        <div style="display:flex;gap:8px">
+          <div style="flex:1;background:var(--surface2);border-radius:14px;padding:12px 6px;text-align:center;">
             <div class="stat-number" id="home-streak">0</div>
             <div class="stat-label">🔥 연속 학습일</div>
           </div>
-          <div class="stat-card">
+          <div style="flex:1;background:var(--surface2);border-radius:14px;padding:12px 6px;text-align:center;">
             <div class="stat-number" id="home-sentences">0</div>
             <div class="stat-label">💬 오늘 말한 문장</div>
           </div>
-          <div class="stat-card">
+          <div style="flex:1;background:var(--surface2);border-radius:14px;padding:12px 6px;text-align:center;">
             <div class="stat-number" id="home-lesson-count">0</div>
             <div class="stat-label">📚 누적 학습</div>
           </div>
@@ -762,13 +764,14 @@ const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // OAuth 리다이렉트 후 세션이 뒤늦게 처리될 때를 대비한 리스너
 _supabase.auth.onAuthStateChange((event, session) => {
-  if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session && isGuest) {
+  if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') && session) {
     userEmail = session.user.email;
     localStorage.setItem('userEmail', userEmail);
     isGuest = false;
     const currentScreen = document.querySelector('.screen.active')?.id;
     if (!currentScreen || currentScreen === 'screen-landing' || currentScreen === 'screen-login') {
       goTo('screen-welcome');
+    } else if (currentScreen === 'screen-welcome') {
       updateHomeStats();
     }
   }
@@ -1189,19 +1192,21 @@ window.addEventListener('DOMContentLoaded', async ()=>{
   const savedJob=localStorage.getItem('currentJob');
   if(savedJob) currentJob=savedJob;
 
-  // 매직 링크 클릭 후 리디렉션된 경우 Supabase가 URL 해시에서 세션을 자동 처리
-  const { data:{ session } }=await _supabase.auth.getSession();
+  try {
+    // 매직 링크 클릭 후 리디렉션된 경우 Supabase가 URL 해시에서 세션을 자동 처리
+    const { data:{ session } }=await _supabase.auth.getSession();
 
-  if(session){
-    userEmail=session.user.email;
-    const isNewUser = !localStorage.getItem('userEmail');
-    localStorage.setItem('userEmail', userEmail);
-    isGuest=false;
-    if(isNewUser) sendAppEmail('welcome', userEmail);
-    goTo('screen-welcome');
-    updateHomeStats();
-    return;
-  }
+    if(session){
+      userEmail=session.user.email;
+      const isNewUser = !localStorage.getItem('userEmail');
+      localStorage.setItem('userEmail', userEmail);
+      isGuest=false;
+      if(isNewUser) sendAppEmail('welcome', userEmail);
+      goTo('screen-welcome');
+      updateHomeStats();
+      return;
+    }
+  } catch(e){ console.warn('Supabase session check failed:', e); }
 
   // Supabase 세션 없으면 localStorage 폴백 (기존 로그인 유지)
   const saved=localStorage.getItem('userEmail');
