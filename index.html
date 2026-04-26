@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>3분 업무 영어</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+
+  :root {
+    --bg:#f5f5f0;--surface:#fff;--surface2:#ededea;--accent:#5b4fff;--accent2:#ff4d77;
+    --text:#111118;--text2:#666680;--success:#00b874;--error:#ef4444;--border:rgba(0,0,0,0.08);--shadow:0 2px 12px rgba(0,0,0,0.07);
+  }
+  [data-theme="dark"] {
+    --bg:#0a0a0f;--surface:#13131a;--surface2:#1c1c26;--accent:#7c6cff;--accent2:#ff6c8a;
+    --text:#f0f0f5;--text2:#8888aa;--success:#4cffb0;--error:#ff6b6b;--border:rgba(255,255,255,0.07);--shadow:0 2px 12px rgba(0,0,0,0.3);
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;transition:background 0.3s,color 0.3s}
+  .app{width:100%;max-width:430px;min-height:100vh;display:flex;flex-direction:column}
+  .screen{display:none;flex-direction:column;min-height:100vh;padding:24px 20px 40px;animation:fadeIn 0.3s ease}
+  .screen.active{display:flex}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+  .header{display:flex;align-items:center;justify-content:space-between;padding:16px 0 8px;margin-bottom:8px}
+  .logo{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;letter-spacing:-0.5px;color:var(--text)}
+  .logo span{color:var(--accent)}
+  .header-right{display:flex;align-items:center;gap:8px}
+  .streak{display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:6px 12px;font-size:13px;font-weight:500;box-shadow:var(--shadow);cursor:pointer}
+  .theme-toggle{width:36px;height:36px;border-radius:50%;background:var(--surface);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:var(--shadow);transition:all 0.2s}
+  .mypage-btn{width:36px;height:36px;border-radius:50%;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 2px 8px rgba(91,79,255,0.3);transition:all 0.2s;color:white}
+  .theme-toggle:active{transform:scale(0.92)}
+
+  /* ── LOGIN SCREEN ── */
+  .login-hero{flex:1;display:flex;flex-direction:column;justify-content:center;padding:20px 0}
+  .login-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(91,79,255,0.1);border:1px solid rgba(91,79,255,0.2);border-radius:20px;padding:6px 14px;font-size:12px;color:var(--accent);font-weight:600;margin-bottom:24px;width:fit-content}
+  .login-title{font-family:'Syne',sans-serif;font-size:34px;font-weight:800;line-height:1.2;letter-spacing:-1px;margin-bottom:12px}
+  .login-title .highlight{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  .login-desc{font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:36px}
+  .login-input-wrap{margin-bottom:12px}
+  .login-input{width:100%;padding:16px 18px;background:var(--surface);border:1.5px solid var(--border);border-radius:14px;font-family:'Noto Sans KR',sans-serif;font-size:15px;color:var(--text);outline:none;transition:border-color 0.2s;box-shadow:var(--shadow)}
+  .login-input:focus{border-color:var(--accent)}
+  .login-input::placeholder{color:var(--text2)}
+  .login-divider{display:flex;align-items:center;gap:12px;margin:20px 0}
+  .login-divider-line{flex:1;height:1px;background:var(--border)}
+  .login-divider-text{font-size:12px;color:var(--text2)}
+  .login-features{display:flex;flex-direction:column;gap:8px;margin-top:24px}
+  .login-feature{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text2)}
+  .login-feature-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0}
+
+  /* 매직 링크 발송 완료 */
+  .magic-sent{text-align:center;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+  .magic-sent-icon{font-size:56px}
+  .magic-sent-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--text)}
+  .magic-sent-desc{font-size:14px;color:var(--text2);line-height:1.7;text-align:center}
+  .magic-sent-email{font-weight:700;color:var(--accent)}
+  .magic-resend{font-size:13px;color:var(--text2);text-align:center;margin-top:8px}
+  .magic-resend button{background:none;border:none;color:var(--accent);font-size:13px;cursor:pointer;text-decoration:underline;font-family:'Noto Sans KR',sans-serif}
+
+  /* ── WELCOME (앱형) ── */
+  .welcome-top{flex:1;display:flex;flex-direction:column;padding:8px 0}
+  .user-greeting{font-size:14px;color:var(--text2);margin-bottom:4px}
+  .user-greeting strong{color:var(--text)}
+  .welcome-main-title{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;letter-spacing:-0.5px;margin-bottom:24px;line-height:1.3}
+  .welcome-main-title .highlight{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+  /* 오늘 상태 카드 */
+  .today-status{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:20px;margin-bottom:16px;box-shadow:var(--shadow)}
+  .today-status-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+  .today-done-badge{font-size:12px;font-weight:600;color:var(--success);background:rgba(0,184,116,0.1);border:1px solid rgba(0,184,116,0.2);border-radius:20px;padding:4px 12px}
+  .today-done-badge.pending{color:var(--text2);background:var(--surface2);border-color:var(--border)}
+  .stats-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .stat-card{background:var(--surface2);border-radius:14px;padding:14px;text-align:center}
+  .stat-number{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:var(--accent);line-height:1}
+  .stat-label{font-size:11px;color:var(--text2);margin-top:4px}
+
+  /* 주간 도트 */
+  .weekly-row{display:flex;align-items:center;gap:6px;margin-bottom:16px}
+  .weekly-label{font-size:12px;color:var(--text2);margin-right:4px}
+  .day-dot{width:28px;height:28px;border-radius:50%;background:var(--surface2);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text2);transition:all 0.3s;font-weight:600}
+  .day-dot.done{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:transparent;color:white;box-shadow:0 2px 8px rgba(91,79,255,0.3)}
+  .day-dot.today{border-color:var(--accent);color:var(--accent)}
+  .milestone-badge{background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;border-radius:20px;padding:8px 16px;font-size:12px;font-weight:700;text-align:center;margin-bottom:12px;display:none;animation:fadeIn 0.4s ease}
+  .milestone-badge.visible{display:block}
+
+  /* 홈 배너 광고 */
+  .ad-banner-home{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow)}
+  .ad-label{font-size:10px;color:var(--text2);background:var(--surface2);border-radius:4px;padding:2px 6px;flex-shrink:0}
+  .ad-content{flex:1;font-size:12px;color:var(--text2);line-height:1.5}
+  .ad-cta{font-size:11px;font-weight:600;color:var(--accent);flex-shrink:0}
+
+  /* 유료 전환 유도 (복습 훅) */
+  .upgrade-hook{background:rgba(91,79,255,0.05);border:1px solid rgba(91,79,255,0.15);border-radius:14px;padding:14px 16px;margin-bottom:16px;display:none}
+  .upgrade-hook.visible{display:flex;align-items:center;gap:12px}
+  .upgrade-hook-icon{font-size:20px;flex-shrink:0}
+  .upgrade-hook-text strong{display:block;font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px}
+  .upgrade-hook-text span{font-size:12px;color:var(--text2)}
+  .upgrade-hook-btn{font-size:12px;font-weight:700;color:var(--accent);background:none;border:none;cursor:pointer;flex-shrink:0;font-family:'Noto Sans KR',sans-serif}
+
+  /* ── JOB SELECT ── */
+  .section-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:700;line-height:1.3;margin-bottom:6px;color:var(--text)}
+  .section-sub{font-size:14px;color:var(--text2);margin-bottom:24px;line-height:1.6}
+  .job-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px}
+  .job-card{background:var(--surface);border:1.5px solid var(--border);border-radius:16px;padding:18px 14px;cursor:pointer;transition:all 0.2s;text-align:left;box-shadow:var(--shadow)}
+  .job-card:active{transform:scale(0.97)}
+  .job-card.selected{border-color:var(--accent);background:rgba(91,79,255,0.07)}
+  .job-card-emoji{font-size:28px;margin-bottom:10px;display:block}
+  .job-card-name{font-size:14px;font-weight:600;margin-bottom:4px;color:var(--text)}
+  .job-card-desc{font-size:11px;color:var(--text2);line-height:1.5}
+
+  /* ── LESSON ── */
+  .lesson-progress{display:flex;align-items:center;gap:8px;margin-bottom:24px}
+  .progress-bar{flex:1;height:4px;background:var(--surface2);border-radius:2px;overflow:hidden}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;transition:width 0.4s ease}
+  .progress-text{font-size:12px;color:var(--text2);white-space:nowrap}
+  .lesson-step{display:none;flex-direction:column;flex:1;animation:fadeIn 0.3s ease}
+  .lesson-step.active{display:flex}
+  .step-label{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+
+  .situation-card{background:rgba(91,79,255,0.06);border:1px solid rgba(91,79,255,0.15);border-radius:16px;padding:18px;margin-bottom:20px}
+  [data-theme="dark"] .situation-card{background:rgba(124,108,255,0.08);border-color:rgba(124,108,255,0.2)}
+  .situation-label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+  .situation-text{font-size:14px;line-height:1.7;color:var(--text)}
+
+  .choices{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+  .choice-btn{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:16px 18px;cursor:pointer;text-align:left;transition:all 0.2s;box-shadow:var(--shadow)}
+  .choice-btn:active{transform:scale(0.98)}
+  .choice-btn.correct{border-color:var(--success);background:rgba(0,184,116,0.07)}
+  [data-theme="dark"] .choice-btn.correct{background:rgba(76,255,176,0.08)}
+  .choice-btn.wrong{border-color:var(--error);background:rgba(239,68,68,0.07)}
+  [data-theme="dark"] .choice-btn.wrong{background:rgba(255,107,107,0.08)}
+  .choice-btn.disabled{pointer-events:none;opacity:0.55}
+  .choice-en{font-family:'Syne',sans-serif;font-size:15px;font-weight:600;color:var(--text)}
+  /* 한국어: 선택 전 숨김, 선택 후 표시 */
+  .choice-ko{font-size:12px;color:var(--text2);max-height:0;overflow:hidden;transition:max-height 0.3s ease,margin-top 0.3s ease;margin-top:0}
+  .choice-btn.revealed .choice-ko{max-height:40px;margin-top:4px}
+
+  .feedback-card{border-radius:16px;padding:16px;margin-bottom:12px;display:none;border:1px solid transparent}
+  .feedback-card.visible{display:block}
+  .feedback-card.correct{background:rgba(0,184,116,0.07);border-color:rgba(0,184,116,0.2)}
+  [data-theme="dark"] .feedback-card.correct{background:rgba(76,255,176,0.08);border-color:rgba(76,255,176,0.25)}
+  .feedback-card.wrong{background:rgba(239,68,68,0.07);border-color:rgba(239,68,68,0.2)}
+  [data-theme="dark"] .feedback-card.wrong{background:rgba(255,107,107,0.08);border-color:rgba(255,107,107,0.25)}
+  .feedback-title{font-size:13px;font-weight:600;margin-bottom:6px;color:var(--success)}
+  .feedback-title.wrong{color:var(--error)}
+  .feedback-text{font-size:13px;color:var(--text2);line-height:1.7}
+
+  .correct-answer-box{background:rgba(91,79,255,0.06);border:1px solid rgba(91,79,255,0.15);border-radius:12px;padding:14px 16px;margin-bottom:14px}
+  [data-theme="dark"] .correct-answer-box{background:rgba(124,108,255,0.08);border-color:rgba(124,108,255,0.2)}
+  .correct-answer-label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+  .correct-answer-text{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--text);line-height:1.5}
+
+  .speak-count-row{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:8px}
+  .speak-dot{width:10px;height:10px;border-radius:50%;background:var(--surface2);border:1.5px solid var(--border);transition:all 0.3s}
+  .speak-dot.done{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:transparent;box-shadow:0 1px 4px rgba(91,79,255,0.4)}
+  .speak-count-label{font-size:11px;color:var(--text2);margin-left:4px}
+
+  .speak-area{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:24px;text-align:center;margin-bottom:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;box-shadow:var(--shadow);min-height:180px}
+  .speak-sentence{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;line-height:1.5;color:var(--accent)}
+  .speak-hint{font-size:13px;color:var(--text2);line-height:1.6}
+  .mic-btn{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:28px;transition:all 0.2s;box-shadow:0 4px 20px rgba(91,79,255,0.35)}
+  .mic-btn:active{transform:scale(0.93)}
+  .mic-btn.recording{animation:pulse 1.2s infinite}
+  @keyframes pulse{0%,100%{box-shadow:0 4px 20px rgba(91,79,255,0.35);transform:scale(1)}50%{box-shadow:0 4px 40px rgba(91,79,255,0.6);transform:scale(1.06)}}
+  .recording-status{display:none;align-items:center;gap:8px;font-size:13px;color:var(--accent2);font-weight:500}
+  .recording-status.visible{display:flex}
+  .rec-dot{width:8px;height:8px;border-radius:50%;background:var(--accent2);animation:blink 1s infinite}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+
+  .speech-result{border-radius:12px;padding:12px 16px;margin-bottom:8px;display:none;text-align:center;border:1px solid var(--border)}
+  .speech-result.visible{display:block;animation:fadeIn 0.3s ease}
+  .speech-result-icon{font-size:22px;margin-bottom:4px}
+  .speech-result-text{font-size:13px;font-weight:600;color:var(--text)}
+  .speech-result-sub{font-size:12px;color:var(--text2);margin-top:2px}
+
+  .playback-area{background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:14px 16px;display:none;align-items:center;gap:12px;margin-bottom:4px}
+  .playback-area.visible{display:flex}
+  .play-btn{width:40px;height:40px;border-radius:50%;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;transition:all 0.2s;color:white}
+  .play-btn:active{transform:scale(0.93);opacity:0.85}
+  .playback-info{flex:1}
+  .playback-label{font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px}
+  .playback-time{font-size:11px;color:var(--text2)}
+  .waveform{display:flex;align-items:center;gap:2px;height:24px}
+  .wave-bar{width:3px;border-radius:2px;background:var(--accent);opacity:0.5;animation:wave 0.8s ease-in-out infinite}
+  .wave-bar:nth-child(1){height:6px;animation-delay:0s}.wave-bar:nth-child(2){height:14px;animation-delay:.1s}.wave-bar:nth-child(3){height:20px;animation-delay:.2s}.wave-bar:nth-child(4){height:14px;animation-delay:.1s}.wave-bar:nth-child(5){height:8px;animation-delay:.3s}.wave-bar:nth-child(6){height:18px;animation-delay:.15s}.wave-bar:nth-child(7){height:10px;animation-delay:.25s}
+  @keyframes wave{0%,100%{transform:scaleY(1);opacity:0.4}50%{transform:scaleY(1.4);opacity:0.9}}
+
+  /* ── COMPLETE ── */
+  .complete-hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:16px}
+  .complete-emoji{font-size:64px;animation:bounce 0.6s ease}
+  @keyframes bounce{0%{transform:scale(0)}70%{transform:scale(1.1)}100%{transform:scale(1)}}
+  .complete-title{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-0.5px;color:var(--text)}
+  .complete-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%}
+  .complete-stat{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;text-align:center;box-shadow:var(--shadow)}
+  .complete-stat-number{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;line-height:1}
+  .complete-stat-label{font-size:12px;color:var(--text2);margin-top:4px}
+  .num-streak{color:var(--accent2)}
+  .num-sentences{color:var(--accent)}
+  .complete-summary{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:20px;width:100%;text-align:left;box-shadow:var(--shadow)}
+  .summary-label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text2);margin-bottom:12px}
+  .summary-pattern{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--accent);margin-bottom:6px}
+  .summary-ko{font-size:13px;color:var(--text2);line-height:1.6}
+
+  /* 달성 카드 공유 버튼 */
+  .share-btn{width:100%;padding:14px;background:var(--surface);border:1.5px solid var(--accent);border-radius:14px;color:var(--accent);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px}
+  .share-btn:active{transform:scale(0.98);background:rgba(91,79,255,0.05)}
+
+  /* 완료 화면 배너 광고 */
+  .ad-banner-complete{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 16px;width:100%;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow)}
+
+  /* ── PAYMENT SCREEN ── */
+  .payment-hero{flex:1;display:flex;flex-direction:column;padding:8px 0}
+  .payment-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,77,119,0.1);border:1px solid rgba(255,77,119,0.2);border-radius:20px;padding:6px 14px;font-size:12px;color:var(--accent2);font-weight:600;margin-bottom:20px;width:fit-content}
+  .payment-title{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;line-height:1.3;letter-spacing:-0.5px;margin-bottom:8px}
+  .payment-sub{font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:24px}
+  .payment-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:24px;margin-bottom:16px;box-shadow:var(--shadow)}
+  .payment-price-row{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}
+  .payment-price{font-family:'Syne',sans-serif;font-size:40px;font-weight:800;color:var(--accent)}
+  .payment-price-unit{font-size:16px;color:var(--text2)}
+  .payment-price-desc{font-size:13px;color:var(--text2);margin-bottom:20px}
+  .payment-features{display:flex;flex-direction:column;gap:10px}
+  .payment-feature{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text)}
+  .payment-feature-icon{width:28px;height:28px;border-radius:8px;background:rgba(91,79,255,0.1);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+  .payment-notice{font-size:12px;color:var(--text2);text-align:center;line-height:1.6;margin-bottom:16px}
+  .payment-success{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:16px;display:none}
+  .payment-success.visible{display:flex}
+  .payment-success-icon{font-size:56px}
+  .payment-success-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:var(--text)}
+  .payment-success-desc{font-size:14px;color:var(--text2);line-height:1.7}
+
+  /* ── 달성 카드 공유 오버레이 ── */
+  .share-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:200;align-items:center;justify-content:center;padding:20px}
+  .share-overlay.visible{display:flex;animation:fadeIn 0.3s ease}
+  .confirm-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:300;align-items:center;justify-content:center;padding:24px}
+  .confirm-modal.visible{display:flex;animation:fadeIn 0.2s ease}
+  .confirm-modal-box{background:var(--surface);border-radius:20px;padding:28px 24px;width:100%;max-width:340px;box-shadow:0 8px 32px rgba(0,0,0,0.2)}
+  .confirm-modal-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--text);margin-bottom:10px}
+  .confirm-modal-desc{font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:24px}
+  .confirm-modal-actions{display:flex;gap:10px}
+  .btn-danger{flex:1;padding:14px;background:#ef4444;border:none;border-radius:12px;color:white;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s}
+  .btn-danger:active{transform:scale(0.98);opacity:0.9}
+  .share-card-wrap{display:flex;flex-direction:column;align-items:center;gap:16px;width:100%;max-width:320px}
+
+  /* 정사각형 공유 카드 */
+  .share-card{
+    width:320px;height:320px;
+    background:linear-gradient(145deg,#3d30e8,#6b4fff 40%,#c4386b);
+    border-radius:24px;padding:24px;
+    display:flex;flex-direction:column;justify-content:space-between;
+    color:white;box-shadow:0 8px 40px rgba(91,79,255,0.45);
+    box-sizing:border-box;
+  }
+  /* 상단 */
+  .sc-header{display:flex;align-items:center;justify-content:space-between}
+  .sc-logo{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.5px;opacity:0.9}
+  .sc-badge{font-size:12px;font-weight:700;background:rgba(255,255,255,0.2);border-radius:20px;padding:4px 10px}
+  /* 중앙 */
+  .sc-body{flex:1;display:flex;flex-direction:column;justify-content:center;gap:8px;padding:16px 0}
+  .sc-label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;opacity:0.7}
+  .sc-sentence{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;line-height:1.45;background:rgba(255,255,255,0.15);border-radius:12px;padding:12px 14px}
+  .sc-ko{font-size:12px;opacity:0.8;line-height:1.5;padding:0 2px}
+  /* 하단 통계 */
+  .sc-footer{display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,0.2);border-radius:14px;padding:12px 16px}
+  .sc-stat{text-align:center;flex:1}
+  .sc-stat-num{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;line-height:1}
+  .sc-stat-label{font-size:10px;opacity:0.75;margin-top:3px}
+  .sc-divider{width:1px;height:32px;background:rgba(255,255,255,0.2)}
+
+  .share-card-btns{display:flex;gap:10px;width:100%}
+  .share-download-btn{flex:2;padding:14px;background:white;border:none;border-radius:12px;color:#5b4fff;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer}
+  .share-close-btn{flex:1;padding:14px;background:rgba(255,255,255,0.15);border:none;border-radius:12px;color:white;font-family:'Noto Sans KR',sans-serif;font-size:14px;cursor:pointer}
+
+  /* ── 영상 광고 오버레이 ── */
+  .video-ad-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:100;align-items:flex-end;justify-content:center;padding:20px}
+  .video-ad-overlay.visible{display:flex;animation:fadeIn 0.3s ease}
+  .video-ad-card{background:var(--surface);border-radius:20px;padding:24px;width:100%;max-width:390px}
+  .video-ad-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:6px;color:var(--text)}
+  .video-ad-sub{font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.6}
+  .video-ad-btn-row{display:flex;gap:10px}
+  .video-ad-watch{flex:2;padding:14px;background:linear-gradient(135deg,var(--accent),#8c7cff);border:none;border-radius:12px;color:white;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer}
+  .video-ad-skip{flex:1;padding:14px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;color:var(--text2);font-family:'Noto Sans KR',sans-serif;font-size:13px;cursor:pointer}
+
+
+
+  /* 비회원 가입 유도 카드 */
+  .signup-cta{background:linear-gradient(135deg,rgba(91,79,255,0.08),rgba(255,77,119,0.06));border:1.5px solid rgba(91,79,255,0.2);border-radius:20px;padding:24px;width:100%;text-align:center}
+  .signup-cta-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--text);margin-bottom:8px}
+  .signup-cta-desc{font-size:14px;color:var(--text2);line-height:1.7}
+  /* 광고 제거 버튼 */
+  .ad-remove-btn{width:100%;padding:14px 16px;background:linear-gradient(135deg,rgba(91,79,255,0.08),rgba(255,77,119,0.06));border:1.5px solid rgba(91,79,255,0.25);border-radius:14px;color:var(--accent);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s;margin-bottom:12px;text-align:left}
+  .ad-remove-btn:active{transform:scale(0.98);opacity:0.9}
+
+  /* 마이페이지 */
+  .mypage-section{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:var(--shadow)}
+  .mypage-section-label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text2);margin-bottom:14px}
+  .mypage-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+  .mypage-row:last-child{border-bottom:none;padding-bottom:0}
+  .mypage-row-label{font-size:14px;color:var(--text2)}
+  .mypage-row-value{font-size:14px;font-weight:600;color:var(--text)}
+  .btn-primary{width:100%;padding:16px;background:linear-gradient(135deg,var(--accent),#8c7cff);border:none;border-radius:14px;color:white;font-family:'Noto Sans KR',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.2s;margin-top:auto}
+  .btn-primary:active{transform:scale(0.98);opacity:0.9}
+  .btn-primary:disabled{opacity:0.35}
+  .btn-secondary{width:100%;padding:14px;background:var(--surface2);border:1px solid var(--border);border-radius:14px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all 0.2s}
+  .btn-secondary:active{transform:scale(0.98)}
+  .btn-row{display:flex;gap:10px;margin-top:auto;padding-top:12px}
+  .back-btn{background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;padding:4px;margin-right:4px}
+  .spacer{flex:1}
+  .today-badge{font-size:11px;color:var(--success);background:rgba(0,184,116,0.1);border:1px solid rgba(0,184,116,0.2);border-radius:8px;padding:3px 8px;font-weight:600}
+  [data-theme="dark"] .today-badge{background:rgba(76,255,176,0.1);border-color:rgba(76,255,176,0.2)}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ══ LOGIN ══ -->
+  <!-- ══ LANDING (비회원/회원 공통 진입) ══ -->
+  <div class="screen active" id="screen-landing">
+    <div class="header">
+      <div class="logo">3분 <span>영어</span></div>
+      <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+    </div>
+    <div class="login-hero">
+      <div class="login-badge">✦ 무료로 시작하기</div>
+      <h1 class="login-title">회의실에서<br><span class="highlight">막히지 않게</span></h1>
+      <p class="login-desc">직무를 선택하고 맛보기 문제를 풀어봐요.<br>가입 없이 바로 시작할 수 있어요.</p>
+      <div class="login-features" style="margin-bottom:32px">
+        <div class="login-feature"><div class="login-feature-dot"></div>직무별 맞춤 표현 — 내 업무 상황만</div>
+        <div class="login-feature"><div class="login-feature-dot"></div>정답/오답 이유 즉시 피드백</div>
+        <div class="login-feature"><div class="login-feature-dot"></div>하루 3분 완결</div>
+        <div class="login-feature"><div class="login-feature-dot"></div>광고 제거는 평생이용권 1만원</div>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="goToLogin('signup')">회원가입 →</button>
+    <button onclick="goToLogin('login')" style="width:100%;padding:14px;background:none;border:1.5px solid var(--border);border-radius:14px;color:var(--text2);font-family:'Noto Sans KR',sans-serif;font-size:15px;font-weight:500;cursor:pointer;margin-top:10px">이미 계정이 있어요</button>
+    <button onclick="goTo('screen-job-entry')" style="width:100%;padding:12px;background:none;border:none;color:var(--text2);font-family:'Noto Sans KR',sans-serif;font-size:13px;cursor:pointer;margin-top:6px;text-decoration:underline">가입 없이 맛보기</button>
+  </div>
+
+  <!-- ══ LOGIN (가입/로그인 전용) ══ -->
+  <div class="screen" id="screen-login">
+    <div class="header">
+      <button class="back-btn" onclick="goTo('screen-landing')">←</button>
+      <div class="logo">3분 <span>영어</span></div>
+      <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+    </div>
+    <div class="login-hero" id="login-form-area">
+      <div class="login-badge" id="login-badge-text">✦ 무료로 시작하기</div>
+      <h1 class="login-title" id="login-title-text">이메일로<br><span class="highlight">간편 가입</span></h1>
+      <p class="login-desc" id="login-desc-text">이메일로 6자리 코드를 받아 바로 로그인돼요.</p>
+      <button onclick="loginWithGoogle()" style="width:100%;padding:14px;background:var(--surface);border:1.5px solid var(--border);border-radius:14px;font-family:'Noto Sans KR',sans-serif;font-size:15px;font-weight:500;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:var(--shadow)">
+        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z"/></svg>
+        Google로 계속하기
+      </button>
+      <div class="login-divider"><div class="login-divider-line"></div><div class="login-divider-text">또는</div><div class="login-divider-line"></div></div>
+      <div class="login-input-wrap">
+        <input class="login-input" type="email" id="login-email" placeholder="이메일 주소" />
+      </div>
+      <button class="btn-primary" onclick="sendOtp()" style="margin-top:0">인증코드 받기 →</button>
+    </div>
+    <div class="magic-sent" id="magic-sent-area" style="display:none">
+      <div class="magic-sent-icon">📬</div>
+      <div class="magic-sent-title">코드를 보냈어요!</div>
+      <div class="magic-sent-desc"><span class="magic-sent-email" id="magic-sent-email"></span>로<br>6자리 인증코드를 발송했어요.</div>
+      <input class="login-input" type="text" id="login-otp" placeholder="6자리 코드 입력" maxlength="6" inputmode="numeric" style="margin-top:16px;text-align:center;font-size:22px;letter-spacing:8px" />
+      <button class="btn-primary" onclick="verifyOtp()" style="margin-top:12px">로그인 완료 →</button>
+      <div class="magic-resend">코드가 안 왔나요? <button onclick="sendOtp()">다시 보내기</button></div>
+    </div>
+  </div>
+
+  <!-- ══ 직무 선택 (비회원 맛보기 + 회원 온보딩 공통) ══ -->
+  <div class="screen" id="screen-job-entry">
+    <div class="header">
+      <button class="back-btn" onclick="goBackFromJobEntry()">←</button>
+      <div class="logo">3분 <span>영어</span></div>
+      <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+    </div>
+    <p class="section-title">어떤 일을<br>하고 계세요?</p>
+    <p class="section-sub" id="job-entry-sub">직무에 맞는 표현으로 시작해요.</p>
+    <div class="job-grid">
+      <div class="job-card" onclick="selectJobEntry(this,'designer')"><span class="job-card-emoji">🎨</span><div class="job-card-name">프로덕트 디자이너</div><div class="job-card-desc">시안 리뷰, 피드백, 발표</div></div>
+      <div class="job-card" onclick="selectJobEntry(this,'developer')"><span class="job-card-emoji">💻</span><div class="job-card-name">개발자</div><div class="job-card-desc">코드 리뷰, 기술 논의, 스프린트</div></div>
+      <div class="job-card" onclick="selectJobEntry(this,'marketer')"><span class="job-card-emoji">📊</span><div class="job-card-name">마케터</div><div class="job-card-desc">캠페인 발표, 성과 보고</div></div>
+      <div class="job-card" onclick="selectJobEntry(this,'pm')"><span class="job-card-emoji">🗂️</span><div class="job-card-name">PM / PO</div><div class="job-card-desc">요구사항, 우선순위, 로드맵</div></div>
+    </div>
+    <button class="btn-primary" id="job-entry-next-btn" disabled onclick="startFromJobEntry()">시작하기 →</button>
+  </div>
+
+
+  <!-- ══ WELCOME (앱형) ══ -->
+  <div class="screen" id="screen-welcome">
+    <div class="header">
+      <div class="logo">3분 <span>영어</span></div>
+      <div class="header-right">
+        <button class="mypage-btn" onclick="openMyPage()" title="마이페이지">👤</button>
+        <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+      </div>
+    </div>
+
+    <div class="welcome-top">
+      <div class="user-greeting">안녕하세요, <strong id="user-email-display">사용자</strong>님 👋</div>
+      <h2 class="welcome-main-title" id="welcome-main-title">오늘도<br><span class="highlight">3분</span> 해볼까요?</h2>
+
+      <!-- 오늘 상태 카드 -->
+      <div class="today-status">
+        <div class="today-status-row">
+          <span style="font-size:13px;font-weight:600;color:var(--text)">이번 주 학습</span>
+          <span class="today-done-badge pending" id="today-done-badge">오늘 아직</span>
+        </div>
+        <div class="weekly-row" id="weekly-dots"></div>
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-number" id="home-streak">0</div>
+            <div class="stat-label">🔥 연속 학습일</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="home-sentences">0</div>
+            <div class="stat-label">💬 오늘 말한 문장</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="home-lesson-count">0</div>
+            <div class="stat-label">📚 누적 학습</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="milestone-badge" id="milestone-badge">🏆 이번 주 3회 달성!</div>
+
+      <!-- 복습 훅 (틀린 문제 있을 때) -->
+      <div class="upgrade-hook" id="upgrade-hook">
+        <span class="upgrade-hook-icon">📌</span>
+        <div class="upgrade-hook-text">
+          <strong>틀린 표현 <span id="wrong-count">0</span>개 쌓였어요</strong>
+          <span>복습하면 더 빨리 체화돼요</span>
+        </div>
+        <button class="upgrade-hook-btn" onclick="goTo('screen-payment')">이용권 보기 →</button>
+      </div>
+
+      <!-- 광고 제거 버튼 (비프리미엄만) -->
+      <button class="ad-remove-btn" id="ad-remove-btn" onclick="goTo('screen-payment')">
+        🚫 광고 제거하기 — 1만원 평생이용권
+      </button>
+
+      <!-- 홈 배너 광고 -->
+      <div class="ad-banner-home" id="ad-home">
+        <span class="ad-label">광고</span>
+        <span class="ad-content">광고 영역 — 카드형으로 자연스럽게 표시돼요</span>
+        <span class="ad-cta">보기 →</span>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="startLessonFromHome()">오늘 학습 시작 →</button>
+  </div>
+
+  <!-- ══ JOB SELECT ══ -->
+  <div class="screen" id="screen-job">
+    <div class="header">
+      <button class="back-btn" onclick="goTo('screen-welcome')">←</button>
+      <div class="logo">3분 <span>영어</span></div>
+      <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+    </div>
+    <p class="section-title">어떤 일을<br>하고 계세요?</p>
+    <p class="section-sub">직무에 맞는 상황으로 연습해요.</p>
+    <div class="job-grid">
+      <div class="job-card" onclick="selectJob(this,'designer')"><span class="job-card-emoji">🎨</span><div class="job-card-name">프로덕트 디자이너</div><div class="job-card-desc">시안 리뷰, 피드백, 발표</div></div>
+      <div class="job-card" onclick="selectJob(this,'developer')"><span class="job-card-emoji">💻</span><div class="job-card-name">개발자</div><div class="job-card-desc">코드 리뷰, 기술 논의, 스프린트</div></div>
+      <div class="job-card" onclick="selectJob(this,'marketer')"><span class="job-card-emoji">📊</span><div class="job-card-name">마케터</div><div class="job-card-desc">캠페인 발표, 성과 보고</div></div>
+      <div class="job-card" onclick="selectJob(this,'pm')"><span class="job-card-emoji">🗂️</span><div class="job-card-name">PM / PO</div><div class="job-card-desc">요구사항, 우선순위, 로드맵</div></div>
+    </div>
+    <button class="btn-primary" id="job-next-btn" disabled onclick="startLesson()">이 직무로 시작하기</button>
+  </div>
+
+  <!-- ══ LESSON ══ -->
+  <div class="screen" id="screen-lesson">
+    <div class="header">
+      <button class="back-btn" onclick="isGuest?goTo('screen-landing'):goTo('screen-welcome')" title="홈으로">🏠</button>
+      <div class="logo">3분 <span>영어</span></div>
+      <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+    </div>
+    <div class="lesson-progress">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:50%"></div></div>
+      <div class="progress-text" id="progress-text">1 / 2</div>
+    </div>
+
+    <!-- STEP 1 -->
+    <div class="lesson-step active" id="step-1">
+      <div class="step-label">알맞은 표현 고르기</div>
+      <div class="situation-card">
+        <div class="situation-label">상황</div>
+        <div class="situation-text" id="situation-text"></div>
+      </div>
+      <div class="choices" id="choices-container"></div>
+      <div class="feedback-card" id="feedback-card">
+        <div class="feedback-title" id="feedback-title">잘 골랐어요!</div>
+        <div class="feedback-text" id="feedback-text"></div>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn-primary" id="choice-next-btn" disabled onclick="goStep(2)">소리 내어 말하기 →</button>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="lesson-step" id="step-2">
+      <div class="step-label">소리 내어 말하기</div>
+      <div class="correct-answer-box">
+        <div class="correct-answer-label">✅ 정답 표현</div>
+        <div class="correct-answer-text" id="correct-answer-display"></div>
+      </div>
+      <div class="speak-count-row" id="speak-count-row">
+        <div class="speak-dot" id="dot-1"></div>
+        <div class="speak-dot" id="dot-2"></div>
+        <div class="speak-dot" id="dot-3"></div>
+        <span class="speak-count-label" id="speak-count-label">3번 말하면 체화 완료 🔥</span>
+      </div>
+      <div class="speak-area">
+        <div class="speak-sentence" id="speak-sentence"></div>
+        <div class="speak-hint" id="speak-hint">버튼을 눌러 녹음을 시작하세요</div>
+        <div class="recording-status" id="recording-status"><div class="rec-dot"></div><span>녹음 중...</span></div>
+        <button class="mic-btn" id="mic-btn" onclick="toggleRecording()">🎤</button>
+      </div>
+      <div class="speech-result" id="speech-result">
+        <div class="speech-result-icon" id="speech-result-icon">👍</div>
+        <div class="speech-result-text" id="speech-result-text"></div>
+        <div class="speech-result-sub" id="speech-result-sub"></div>
+      </div>
+      <div class="playback-area" id="playback-area">
+        <button class="play-btn" id="play-btn" onclick="playRecording()">▶</button>
+        <div class="playback-info">
+          <div class="playback-label">내 녹음</div>
+          <div class="playback-time" id="playback-time">0초</div>
+        </div>
+        <div class="waveform"><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-secondary" style="flex:1" onclick="resetOneSpeakRound()">다시 녹음</button>
+        <button class="btn-primary" style="flex:2;margin-top:0;" onclick="finishLesson()">완료 ✓</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ COMPLETE ══ -->
+  <div class="screen" id="screen-complete">
+    <div class="header">
+      <div class="logo">3분 <span>영어</span></div>
+      <div class="header-right">
+        <div class="today-badge">오늘 완료 ✓</div>
+        <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+      </div>
+    </div>
+    <div class="complete-hero">
+      <div class="complete-emoji" id="complete-emoji">🎉</div>
+      <div class="complete-title" id="complete-title">잘 했어요!</div>
+      <div class="complete-stats">
+        <div class="complete-stat">
+          <div class="complete-stat-number num-streak" id="complete-streak">0</div>
+          <div class="complete-stat-label">🔥 연속 학습일</div>
+        </div>
+        <div class="complete-stat">
+          <div class="complete-stat-number num-sentences" id="complete-sentences">0</div>
+          <div class="complete-stat-label">💬 오늘 말한 문장</div>
+        </div>
+      </div>
+      <div class="complete-summary">
+        <div class="summary-label">오늘 배운 표현</div>
+        <div class="summary-pattern" id="summary-pattern"></div>
+        <div class="summary-ko" id="summary-ko"></div>
+      </div>
+      <!-- 비회원 가입 유도 카드 -->
+      <div class="signup-cta" id="signup-cta" style="display:none">
+        <div class="signup-cta-title">🎉 맛보기 완료!</div>
+        <div class="signup-cta-desc">가입하면 직무별 100개 표현을<br>모두 학습할 수 있어요.</div>
+        <button class="btn-primary" style="margin-top:12px" onclick="goTo('screen-login')">무료로 가입하기 →</button>
+      </div>
+
+      <!-- 달성 카드 공유 버튼 -->
+      <button class="share-btn" id="share-btn" onclick="openShareCard()" style="display:none">
+        📤 달성 카드 저장하기
+      </button>
+      <!-- 완료 화면 배너 광고 -->
+      <div class="ad-banner-complete">
+        <span class="ad-label">광고</span>
+        <span class="ad-content">학습 완료 후 광고 영역</span>
+        <span class="ad-cta">보기 →</span>
+      </div>
+    </div>
+    <div class="btn-row" id="complete-btn-row">
+      <button class="btn-secondary" style="flex:1" id="complete-home-btn" onclick="goCompleteHome()">홈으로</button>
+      <button class="btn-primary" style="flex:2;margin-top:0;" id="complete-next-btn" onclick="nextLesson()">다음 패턴 →</button>
+    </div>
+  </div>
+
+  <!-- ══ PAYMENT ══ -->
+  <div class="screen" id="screen-payment">
+    <div class="header">
+      <button class="back-btn" onclick="goTo('screen-welcome')">←</button>
+      <div class="logo">3분 <span>영어</span></div>
+      <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+    </div>
+    <div class="payment-hero" id="payment-form-area">
+      <div class="payment-badge">🎁 런칭 특가</div>
+      <h2 class="payment-title">광고 없이,<br>복습까지 한 번에</h2>
+      <p class="payment-sub">정식 출시 후 월 구독으로 전환 예정이에요.<br>지금만 1회 결제로 영구 이용 가능해요.</p>
+      <div class="payment-card">
+        <div class="payment-price-row">
+          <span class="payment-price">10,000</span>
+          <span class="payment-price-unit">원</span>
+        </div>
+        <p class="payment-price-desc">평생이용권 — 1회 결제, 영구 이용</p>
+        <div class="payment-features">
+          <div class="payment-feature"><div class="payment-feature-icon">🚫</div>광고 영구 제거</div>
+          <div class="payment-feature"><div class="payment-feature-icon">🔄</div>틀린 표현 자동 복습</div>
+          <div class="payment-feature"><div class="payment-feature-icon">📚</div>전체 콘텐츠 무제한</div>
+          <div class="payment-feature"><div class="payment-feature-icon">☁️</div>학습 기록 영구 보관</div>
+        </div>
+      </div>
+      <p class="payment-notice">결제는 토스페이먼츠를 통해 안전하게 처리돼요.<br>결제 후 광고가 즉시 제거돼요.</p>
+      <button class="btn-primary" style="margin-top:0" onclick="mockPayment()">지금 결제하기 — 10,000원</button>
+      <div style="height:12px"></div>
+      <button class="btn-secondary" onclick="goTo('screen-welcome')">다음에 할게요</button>
+    </div>
+    <!-- 결제 완료 -->
+    <div class="payment-success" id="payment-success-area">
+      <div class="payment-success-icon">🎊</div>
+      <div class="payment-success-title">결제 완료!</div>
+      <div class="payment-success-desc">광고가 제거됐어요.<br>복습 기능도 이제 사용할 수 있어요.<br><br>열심히 한 만큼 영어가 달라질 거예요 💪</div>
+      <button class="btn-primary" style="margin-top:16px" onclick="completePayment()">학습 계속하기 →</button>
+    </div>
+  </div>
+
+
+  <!-- ══ MYPAGE ══ -->
+  <div class="screen" id="screen-mypage">
+    <div class="header">
+      <button class="back-btn" onclick="goTo('screen-welcome')">←</button>
+      <div class="logo">3분 <span>영어</span></div>
+      <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+    </div>
+    <div style="padding-top:8px">
+      <p class="section-title">마이페이지</p>
+
+      <!-- 계정 정보 -->
+      <div class="mypage-section">
+        <div class="mypage-section-label">계정</div>
+        <div class="mypage-row">
+          <span class="mypage-row-label">이메일</span>
+          <span class="mypage-row-value" id="mypage-email">-</span>
+        </div>
+        <div class="mypage-row">
+          <span class="mypage-row-label">플랜</span>
+          <span class="mypage-row-value" id="mypage-plan">무료</span>
+        </div>
+      </div>
+
+      <!-- 직무 변경 -->
+      <div class="mypage-section">
+        <div class="mypage-section-label">직무 설정</div>
+        <div class="job-grid" id="mypage-job-grid" style="margin-bottom:12px">
+          <div class="job-card" onclick="selectMyPageJob(this,'designer')"><span class="job-card-emoji">🎨</span><div class="job-card-name">프로덕트 디자이너</div></div>
+          <div class="job-card" onclick="selectMyPageJob(this,'developer')"><span class="job-card-emoji">💻</span><div class="job-card-name">개발자</div></div>
+          <div class="job-card" onclick="selectMyPageJob(this,'marketer')"><span class="job-card-emoji">📊</span><div class="job-card-name">마케터</div></div>
+          <div class="job-card" onclick="selectMyPageJob(this,'pm')"><span class="job-card-emoji">🗂️</span><div class="job-card-name">PM / PO</div></div>
+        </div>
+        <button class="btn-primary" id="mypage-job-save-btn" disabled onclick="saveMyPageJob()" style="margin-top:0">직무 저장하기</button>
+      </div>
+
+      <!-- 학습 통계 -->
+      <div class="mypage-section">
+        <div class="mypage-section-label">학습 기록</div>
+        <div class="mypage-row">
+          <span class="mypage-row-label">연속 학습일</span>
+          <span class="mypage-row-value" id="mypage-streak">0일</span>
+        </div>
+        <div class="mypage-row">
+          <span class="mypage-row-label">누적 학습 횟수</span>
+          <span class="mypage-row-value" id="mypage-lesson-count">0회</span>
+        </div>
+      </div>
+
+      <!-- 로그아웃 / 탈퇴 -->
+      <button class="btn-secondary" onclick="logout()" style="margin-top:8px">로그아웃</button>
+      <button onclick="openDeleteModal()" style="width:100%;padding:12px;background:none;border:none;color:var(--error);font-family:'Noto Sans KR',sans-serif;font-size:13px;cursor:pointer;margin-top:6px">회원 탈퇴</button>
+    </div>
+  </div>
+
+  <!-- ══ 탈퇴 확인 모달 ══ -->
+  <div class="confirm-modal" id="delete-modal">
+    <div class="confirm-modal-box">
+      <div class="confirm-modal-title">정말 탈퇴할까요?</div>
+      <div class="confirm-modal-desc">탈퇴하면 모든 학습 기록이 삭제되고<br>복구할 수 없어요.<br><br>탈퇴 확인 이메일을 발송해드려요.</div>
+      <div class="confirm-modal-actions">
+        <button class="btn-secondary" style="flex:1" onclick="closeDeleteModal()">취소</button>
+        <button class="btn-danger" id="delete-confirm-btn" onclick="deleteAccount()">탈퇴하기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 달성 카드 공유 오버레이 ══ -->
+  <!-- ══ 공유 카드 오버레이 ══ -->
+  <div class="share-overlay" id="share-overlay">
+    <div class="share-card-wrap">
+      <!-- 정사각형 카드 (320×320) — html2canvas 캡처 대상 -->
+      <div class="share-card" id="share-card">
+        <!-- 상단: 서비스명 -->
+        <div class="sc-header">
+          <span class="sc-logo">3분 업무 영어</span>
+          <span class="sc-badge" id="sc-badge">🔥 3일 연속</span>
+        </div>
+        <!-- 중앙: 오늘 배운 표현 -->
+        <div class="sc-body">
+          <div class="sc-label">오늘 배운 표현</div>
+          <div class="sc-sentence" id="sc-sentence">"I focused on consistency in this design."</div>
+          <div class="sc-ko" id="sc-ko">이 디자인에서 일관성에 집중했어요.</div>
+        </div>
+        <!-- 하단: 학습 결과 데이터 -->
+        <div class="sc-footer">
+          <div class="sc-stat">
+            <div class="sc-stat-num" id="sc-streak">0</div>
+            <div class="sc-stat-label">연속 학습일</div>
+          </div>
+          <div class="sc-divider"></div>
+          <div class="sc-stat">
+            <div class="sc-stat-num" id="sc-sentences">0</div>
+            <div class="sc-stat-label">오늘 말한 문장</div>
+          </div>
+          <div class="sc-divider"></div>
+          <div class="sc-stat">
+            <div class="sc-stat-num" id="sc-lessons">0</div>
+            <div class="sc-stat-label">누적 학습</div>
+          </div>
+        </div>
+      </div>
+      <!-- 버튼 -->
+      <div class="share-card-btns">
+        <button class="share-download-btn" onclick="downloadShareCard()">📥 이미지 저장</button>
+        <button class="share-close-btn" onclick="closeShareCard()">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 영상 광고 오버레이 ══ -->
+  <div class="video-ad-overlay" id="video-ad-overlay">
+    <div class="video-ad-card">
+      <div class="video-ad-title">📺 짧은 광고를 보고 복습 잠금을 해제하세요</div>
+      <div class="video-ad-sub">광고 보기(15초)로 오늘 틀린 표현 복습을 잠금 해제할 수 있어요. 그냥 넘어가도 학습에 지장 없어요.</div>
+      <div class="video-ad-btn-row">
+        <button class="video-ad-watch" onclick="watchVideoAd()">📺 광고 보고 복습하기</button>
+        <button class="video-ad-skip" onclick="skipVideoAd()">다음에</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ══ SUPABASE CONFIG ══
+// Supabase 프로젝트 생성 후 아래 두 값을 채워주세요
+// https://supabase.com → 프로젝트 Settings → API
+const SUPABASE_URL = 'https://yitssseegmpjjjsusowp.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_O3Kqjfj7owJJ2QzqeQrnOw_WWZi3WDv';
+
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ══ LESSONS (Supabase fetch + 메모리 캐시) ══
+const lessonsCache = {};
+
+function dbRowToLesson(row) {
+  return {
+    situation:  row.situation,
+    correct_en: row.correct,
+    correct_ko: row.correct_ko || '',
+    choices: [
+      { en: row.correct,  ko: row.correct_ko || '', isCorrect: true,  feedback: row.reason },
+      { en: row.wrong1,   ko: '',                   isCorrect: false, feedback: '' },
+      { en: row.wrong2,   ko: '',                   isCorrect: false, feedback: '' },
+    ]
+  };
+}
+
+async function getLessons(job) {
+  if (lessonsCache[job]?.length) return lessonsCache[job];
+
+  const { data, error } = await _supabase
+    .from('lessons')
+    .select('situation,correct,correct_ko,wrong1,wrong2,reason')
+    .eq('job', job)
+    .order('id');
+
+  if (error || !data?.length) {
+    console.error('lessons fetch error', error);
+    return [];
+  }
+
+  lessonsCache[job] = data.map(dbRowToLesson);
+  return lessonsCache[job];
+}
+
+
+// ══ 셔플 ══
+function shuffleArray(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+// ══ 랜딩 / 직무 선택 진입 ══
+let jobEntrySelected=null;
+
+function goBackFromJobEntry(){
+  if(isGuest) goTo('screen-landing');
+  else goTo('screen-welcome');
+}
+
+function selectJobEntry(el, job){
+  document.querySelectorAll('#screen-job-entry .job-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  jobEntrySelected=job;
+  document.getElementById('job-entry-next-btn').disabled=false;
+}
+
+
+// 비회원 맛보기 전용 풀 — 직무별 3개 고정 인덱스
+const previewPools = {
+  designer: [0, 1, 2],
+  developer: [0, 1, 2],
+  marketer: [0, 1],
+  pm: [0, 1]
+};
+
+async function startFromJobEntry(){
+  if(!jobEntrySelected) return;
+  currentJob=jobEntrySelected;
+  localStorage.setItem('currentJob', currentJob);
+
+  if(isGuest){
+    // 비회원: 맛보기 전용 풀(3개) 안에서만 랜덤
+    document.getElementById('job-entry-sub').textContent='직무에 맞는 표현으로 시작해요.';
+    const pool=previewPools[currentJob]||[0,1,2];
+    const seenKey='preview_seen_'+currentJob;
+    const seen=JSON.parse(localStorage.getItem(seenKey)||'[]');
+    const available=pool.filter(i=>!seen.includes(i));
+    // 3개 모두 봤으면 순환
+    const candidates=available.length>0?available:pool;
+    currentLessonIndex=candidates[Math.floor(Math.random()*candidates.length)];
+    // 본 문제 기록 (풀 안에서만 관리)
+    const newSeen=available.length>0?[...seen,currentLessonIndex]:[];
+    localStorage.setItem(seenKey, JSON.stringify(newSeen));
+    await loadLesson();
+    goTo('screen-lesson');
+  } else {
+    // 회원 온보딩: 직무 저장 후 홈
+    goTo('screen-welcome');
+    updateHomeStats();
+  }
+}
+
+// 맛보기 후 가입 (로그인 화면에서 프로토타입 버튼)
+function mockLoginAfterPreview(){
+  if(!userEmail) userEmail='user@example.com';
+  localStorage.setItem('userEmail', userEmail);
+  isGuest=false;
+  goTo('screen-welcome');
+  updateHomeStats();
+}
+
+// ══ 마이페이지 ══
+let mypageJob=null;
+function openMyPage(){
+  const email=localStorage.getItem('userEmail')||userEmail||'-';
+  document.getElementById('mypage-email').textContent=email;
+  document.getElementById('mypage-plan').textContent=localStorage.getItem('isPremium')==='true'?'평생이용권 ✓':'무료';
+  document.getElementById('mypage-streak').textContent=getStreak()+'일';
+  document.getElementById('mypage-lesson-count').textContent=getLessonCount()+'회';
+  // 현재 직무 선택 표시
+  const saved=localStorage.getItem('currentJob')||currentJob;
+  mypageJob=saved;
+  document.querySelectorAll('#mypage-job-grid .job-card').forEach(c=>{
+    c.classList.remove('selected');
+    if(c.getAttribute('onclick')&&c.getAttribute('onclick').includes("'"+saved+"'")) c.classList.add('selected');
+  });
+  document.getElementById('mypage-job-save-btn').disabled=true;
+  goTo('screen-mypage');
+}
+function selectMyPageJob(el, job){
+  document.querySelectorAll('#mypage-job-grid .job-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  mypageJob=job;
+  document.getElementById('mypage-job-save-btn').disabled=false;
+}
+function saveMyPageJob(){
+  if(!mypageJob) return;
+  currentJob=mypageJob;
+  localStorage.setItem('currentJob', currentJob);
+  document.getElementById('mypage-job-save-btn').disabled=true;
+  document.getElementById('mypage-job-save-btn').textContent='저장됐어요 ✓';
+  setTimeout(()=>{ document.getElementById('mypage-job-save-btn').textContent='직무 저장하기'; },1500);
+}
+async function logout(){
+  if(!confirm('로그아웃 하시겠어요?')) return;
+  await _supabase.auth.signOut();
+  localStorage.clear();
+  userEmail=''; currentJob=null; isPremium=false;
+  location.reload();
+}
+function openDeleteModal(){
+  document.getElementById('delete-modal').classList.add('visible');
+}
+function closeDeleteModal(){
+  document.getElementById('delete-modal').classList.remove('visible');
+}
+async function deleteAccount(){
+  const btn=document.getElementById('delete-confirm-btn');
+  btn.textContent='처리 중...'; btn.disabled=true;
+
+  await sendAppEmail('withdrawal', userEmail);
+
+  await _supabase.auth.signOut();
+  localStorage.clear();
+  userEmail=''; currentJob=null; isPremium=false;
+  closeDeleteModal();
+  alert('탈퇴가 완료됐어요. 이용해주셔서 감사합니다.');
+  location.reload();
+}
+
+// ══ STATE ══
+let currentJob=null, currentLessonIndex=0, currentLesson=null, selectedChoice=null;
+let mediaRecorder=null, audioChunks=[], recordedBlob=null, audioPlayer=null;
+let recordingStartTime=null, recordingDuration=0;
+let isDark=false, speakCount=0, totalLessonCount=0;
+let recognition=null;
+let isPremium=false;
+let userEmail='';
+let wrongCount=0;
+let isGuest=true; // 비회원 여부
+let guestSentences=0;  // 비회원 세션 내 학습 문장 수 (최대 3)
+let guestStreak=1;     // 비회원 연속일: 접속일 기준 항상 1
+
+// ══ STORAGE ══
+function today(){ return new Date().toISOString().slice(0,10); }
+function prevDay(d){ const dt=new Date(d); dt.setDate(dt.getDate()-1); return dt.toISOString().slice(0,10); }
+
+function getStreak(){
+  const d=JSON.parse(localStorage.getItem('streakData')||'{"count":0,"lastDate":""}');
+  const t=today();
+  if(d.lastDate===t) return d.count;
+  if(d.lastDate===prevDay(t)) return d.count;
+  return 0;
+}
+function markStreakToday(){
+  const t=today();
+  const d=JSON.parse(localStorage.getItem('streakData')||'{"count":0,"lastDate":""}');
+  if(d.lastDate===t) return d.count;
+  const n=(d.lastDate===prevDay(t))?d.count+1:1;
+  localStorage.setItem('streakData',JSON.stringify({count:n,lastDate:t}));
+  return n;
+}
+function getTodaySentences(){
+  const d=JSON.parse(localStorage.getItem('sentenceData')||'{"date":"","count":0}');
+  return d.date===today()?d.count:0;
+}
+function addTodaySentences(n){
+  const t=today();
+  const d=JSON.parse(localStorage.getItem('sentenceData')||'{"date":"","count":0}');
+  const prev=d.date===t?d.count:0;
+  localStorage.setItem('sentenceData',JSON.stringify({date:t,count:prev+n}));
+  return prev+n;
+}
+function getWeeklyRecord(){
+  return JSON.parse(localStorage.getItem('weeklyRecord')||'[]');
+}
+function markWeeklyToday(){
+  const t=today();
+  const rec=getWeeklyRecord().filter(d=>d!==t);
+  rec.push(t);
+  localStorage.setItem('weeklyRecord',JSON.stringify(rec.slice(-7)));
+  return rec;
+}
+function getLessonCount(){ return parseInt(localStorage.getItem('lessonCount')||'0'); }
+function incrementLessonCount(){ const n=getLessonCount()+1; localStorage.setItem('lessonCount',String(n)); return n; }
+function getWrongCount(){ return parseInt(localStorage.getItem('wrongCount')||'0'); }
+function addWrongCount(){ const n=getWrongCount()+1; localStorage.setItem('wrongCount',String(n)); return n; }
+
+// ══ LOGIN ══
+async function goToLogin(mode){
+  if(mode === 'login'){
+    const { data:{ session } } = await _supabase.auth.getSession();
+    if(session){
+      userEmail = session.user.email;
+      localStorage.setItem('userEmail', userEmail);
+      isGuest = false;
+      goTo('screen-welcome');
+      updateHomeStats();
+      return;
+    }
+  }
+  const isLogin = mode === 'login';
+  document.getElementById('login-badge-text').textContent = isLogin ? '✦ 다시 오셨군요' : '✦ 무료로 시작하기';
+  document.getElementById('login-title-text').innerHTML = isLogin
+    ? '이메일로<br><span class="highlight">로그인</span>'
+    : '이메일로<br><span class="highlight">간편 가입</span>';
+  document.getElementById('login-desc-text').textContent = isLogin
+    ? '가입한 이메일로 로그인 링크를 받아요.'
+    : '비밀번호 없이 링크 하나로 로그인돼요.\n학습 기록이 안전하게 저장돼요.';
+  document.getElementById('login-form-area').style.display = '';
+  document.getElementById('magic-sent-area').style.display = 'none';
+  document.getElementById('login-email').value = '';
+  goTo('screen-login');
+}
+
+async function handleStartBtn(){
+  const { data:{ session } }=await _supabase.auth.getSession();
+  if(session){
+    userEmail=session.user.email;
+    localStorage.setItem('userEmail', userEmail);
+    isGuest=false;
+    goTo('screen-welcome');
+    updateHomeStats();
+  } else {
+    goTo('screen-login');
+  }
+}
+
+async function sendAppEmail(type, email){
+  try {
+    const { data:{ session } } = await _supabase.auth.getSession();
+    const token = session?.access_token || SUPABASE_ANON_KEY;
+    const res = await fetch('https://yitssseegmpjjjsusowp.supabase.co/functions/v1/quick-endpoint', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ type, email }),
+    });
+    const data = await res.json();
+    console.log('이메일 발송 결과:', res.status, data);
+  } catch(e) {
+    console.error('이메일 발송 실패:', e);
+  }
+}
+
+async function loginWithGoogle(){
+  await _supabase.auth.signInWithOAuth({
+    provider:'google',
+    options:{ redirectTo: window.location.origin + window.location.pathname }
+  });
+}
+
+async function sendOtp(){
+  const email=document.getElementById('login-email').value.trim();
+  if(!email||!email.includes('@')){ alert('올바른 이메일을 입력해주세요.'); return; }
+
+  const btn=document.getElementById('login-form-area').querySelector('.btn-primary');
+  btn.textContent='발송 중...'; btn.disabled=true;
+
+  const { error }=await _supabase.auth.signInWithOtp({ email, options:{ shouldCreateUser: true } });
+
+  btn.textContent='인증코드 받기 →'; btn.disabled=false;
+
+  if(error){ alert('발송 실패: '+error.message); return; }
+
+  userEmail=email;
+  document.getElementById('magic-sent-email').textContent=email;
+  document.getElementById('login-otp').value='';
+  document.getElementById('login-form-area').style.display='none';
+  document.getElementById('magic-sent-area').style.display='flex';
+  document.getElementById('magic-sent-area').style.flexDirection='column';
+}
+
+async function verifyOtp(){
+  const email=userEmail;
+  const token=document.getElementById('login-otp').value.trim();
+  if(token.length!==6){ alert('6자리 코드를 입력해주세요.'); return; }
+
+  const btn=document.getElementById('magic-sent-area').querySelector('.btn-primary');
+  btn.textContent='확인 중...'; btn.disabled=true;
+
+  const isNewUser = !localStorage.getItem('userEmail');
+  const { error }=await _supabase.auth.verifyOtp({ email, token, type:'email' });
+
+  btn.textContent='로그인 완료 →'; btn.disabled=false;
+
+  if(error){ alert('코드가 올바르지 않아요: '+error.message); return; }
+
+  localStorage.setItem('userEmail', email);
+  isGuest=false;
+
+  if(isNewUser) sendAppEmail('welcome', email);
+
+  const savedJob=localStorage.getItem('currentJob');
+  if(savedJob){ currentJob=savedJob; goTo('screen-welcome'); updateHomeStats(); }
+  else { goTo('screen-job-entry'); }
+}
+function mockLogin(){
+  mockLoginAfterPreview();
+}
+
+// ══ INIT ══
+function updateHomeStats(){
+  const streak=getStreak();
+  const sentences=getTodaySentences();
+  wrongCount=getWrongCount();
+  document.getElementById('home-streak').textContent=streak;
+  document.getElementById('home-sentences').textContent=sentences;
+  document.getElementById('home-lesson-count').textContent=getLessonCount();
+
+  // 이메일 표시
+  const saved=localStorage.getItem('userEmail')||userEmail||'사용자';
+  const name=saved.split('@')[0];
+  document.getElementById('user-email-display').textContent=name;
+
+  // 오늘 완료 여부
+  const todayDone=getWeeklyRecord().includes(today());
+  const badge=document.getElementById('today-done-badge');
+  if(todayDone){ badge.textContent='오늘 완료 ✓'; badge.classList.remove('pending'); }
+  else { badge.textContent='오늘 아직'; badge.classList.add('pending'); }
+
+  // 타이틀
+  const wt=document.getElementById('welcome-main-title');
+  if(todayDone) wt.innerHTML='오늘도<br>잘 <span class="highlight">해냈어요!</span>';
+  else wt.innerHTML='오늘도<br><span class="highlight">3분</span> 해볼까요?';
+
+  // 복습 훅
+  if(wrongCount>=3){
+    document.getElementById('wrong-count').textContent=wrongCount;
+    document.getElementById('upgrade-hook').classList.add('visible');
+  }
+
+  // 프리미엄이면 광고 숨김
+  isPremium=localStorage.getItem('isPremium')==='true';
+  if(isPremium){
+    document.getElementById('ad-home').style.display='none';
+    const rb=document.getElementById('ad-remove-btn');
+    if(rb) rb.style.display='none';
+  }
+
+  renderWeeklyDots();
+}
+
+function renderWeeklyDots(){
+  const rec=getWeeklyRecord();
+  const t=today();
+  const container=document.getElementById('weekly-dots');
+  container.innerHTML='';
+  const days=['월','화','수','목','금','토','일'];
+  const now=new Date();
+  const dow=now.getDay();
+  const mondayOffset=dow===0?-6:1-dow;
+  for(let i=0;i<7;i++){
+    const d=new Date(now);
+    d.setDate(now.getDate()+mondayOffset+i);
+    const ds=d.toISOString().slice(0,10);
+    const dot=document.createElement('div');
+    dot.className='day-dot';
+    if(rec.includes(ds)){ dot.classList.add('done'); dot.textContent='✓'; }
+    else if(ds===t){ dot.classList.add('today'); dot.textContent=days[i]; }
+    else { dot.textContent=days[i]; }
+    container.appendChild(dot);
+  }
+  const thisWeekDone=rec.filter(d=>{
+    const dd=new Date(d), mn=new Date(now);
+    mn.setDate(now.getDate()+mondayOffset); mn.setHours(0,0,0,0);
+    const mx=new Date(mn); mx.setDate(mn.getDate()+6);
+    return dd>=mn&&dd<=mx;
+  }).length;
+  const badge=document.getElementById('milestone-badge');
+  if(thisWeekDone>=3){ badge.classList.add('visible'); badge.textContent=thisWeekDone>=7?'🏆 이번 주 개근!':'🏆 이번 주 '+thisWeekDone+'회 달성!'; }
+  else badge.classList.remove('visible');
+}
+
+// 로그인 상태 체크
+window.addEventListener('DOMContentLoaded', async ()=>{
+  const savedJob=localStorage.getItem('currentJob');
+  if(savedJob) currentJob=savedJob;
+
+  // 매직 링크 클릭 후 리디렉션된 경우 Supabase가 URL 해시에서 세션을 자동 처리
+  const { data:{ session } }=await _supabase.auth.getSession();
+
+  if(session){
+    userEmail=session.user.email;
+    const isNewUser = !localStorage.getItem('userEmail');
+    localStorage.setItem('userEmail', userEmail);
+    isGuest=false;
+    if(isNewUser) sendAppEmail('welcome', userEmail);
+    goTo('screen-welcome');
+    updateHomeStats();
+    return;
+  }
+
+  // Supabase 세션 없으면 localStorage 폴백 (기존 로그인 유지)
+  const saved=localStorage.getItem('userEmail');
+  if(saved){
+    userEmail=saved;
+    isGuest=false;
+    goTo('screen-welcome');
+    updateHomeStats();
+  } else {
+    guestSentences=0;
+    guestStreak=1;
+  }
+});
+
+// ══ UI ══
+function toggleTheme(){
+  isDark=!isDark;
+  document.documentElement.setAttribute('data-theme',isDark?'dark':'light');
+  document.querySelectorAll('.theme-toggle').forEach(b=>b.textContent=isDark?'☀️':'🌙');
+}
+function goTo(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(id==='screen-welcome') updateHomeStats();
+  window.scrollTo(0,0);
+}
+function selectJob(el,job){
+  document.querySelectorAll('.job-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  currentJob=job;
+  document.getElementById('job-next-btn').disabled=false;
+}
+async function startLessonFromHome(){
+  // 저장된 직무로 바로 학습 시작 (직무 선택 화면 건너뜀)
+  const saved=localStorage.getItem('currentJob');
+  if(saved) currentJob=saved;
+  if(!currentJob) currentJob='designer'; // 폴백
+  currentLessonIndex=0;
+  await loadLesson();
+  goTo('screen-lesson');
+}
+async function startLesson(){ currentLessonIndex=0; await loadLesson(); goTo('screen-lesson'); }
+
+async function loadLesson(){
+  const list = await getLessons(currentJob);
+  if (!list.length) { console.error('no lessons for', currentJob); return; }
+  currentLesson=list[currentLessonIndex%list.length];
+  document.getElementById('situation-text').textContent=currentLesson.situation;
+  const c=document.getElementById('choices-container');
+  c.innerHTML='';
+  // 선택지 순서 셔플 (정답 위치 고정 방지)
+  const shuffledChoices=shuffleArray(currentLesson.choices.map((ch,i)=>({...ch,origIndex:i})));
+  shuffledChoices.forEach((ch,i)=>{
+    const b=document.createElement('button');
+    b.className='choice-btn';
+    // 한국어 숨김 처리 — choice-ko는 선택 전 max-height:0
+    b.innerHTML=`<div class="choice-en">${ch.en}</div><div class="choice-ko">${ch.ko}</div>`;
+    if(ch.isCorrect) b.classList.add('correct-answer-marker');
+    b.onclick=()=>selectChoice(b,ch.isCorrect,ch.feedback);
+    c.appendChild(b);
+  });
+  selectedChoice=null; speakCount=0;
+  document.getElementById('choice-next-btn').disabled=true;
+  document.getElementById('feedback-card').className='feedback-card';
+  document.getElementById('feedback-title').className='feedback-title';
+  resetRecording();
+  goStep(1);
+}
+
+function goStep(step){
+  document.querySelectorAll('.lesson-step').forEach(s=>s.classList.remove('active'));
+  document.getElementById(`step-${step}`).classList.add('active');
+  document.getElementById('progress-fill').style.width=[50,100][step-1]+'%';
+  document.getElementById('progress-text').textContent=`${step} / 2`;
+  if(step===2){
+    document.getElementById('correct-answer-display').textContent=currentLesson.correct_en;
+    document.getElementById('speak-sentence').textContent=currentLesson.correct_en;
+    speakCount=0; updateSpeakDots(); resetSpeechResult();
+  }
+}
+
+function selectChoice(btn,isCorrect,feedback){
+  const fc=document.getElementById('feedback-card');
+  const ft=document.getElementById('feedback-title');
+
+  if(isCorrect){
+    // 정답: 모든 선택지 한국어 표시, 다음 버튼 활성화
+    document.querySelectorAll('.choice-btn').forEach(b=>b.classList.remove('wrong','disabled'));
+    document.querySelectorAll('.choice-btn').forEach(b=>b.classList.add('revealed'));
+    btn.classList.add('correct');
+    fc.className='feedback-card visible correct';
+    ft.className='feedback-title';
+    ft.textContent='잘 골랐어요!';
+    document.getElementById('feedback-text').textContent=feedback;
+    document.getElementById('choice-next-btn').disabled=false;
+    selectedChoice=0;
+  } else {
+    // 오답: 해당 버튼만 빨갛게, 피드백 표시, 다시 선택 가능 (다음 버튼 비활성 유지)
+    document.querySelectorAll('.choice-btn').forEach(b=>b.classList.remove('correct','wrong','revealed','disabled'));
+    btn.classList.add('wrong','revealed');
+    fc.className='feedback-card visible wrong';
+    ft.className='feedback-title wrong';
+    ft.textContent='다시 골라봐요';
+    document.getElementById('feedback-text').textContent=feedback;
+    addWrongCount();
+    // 오답 버튼은 다시 누를 수 없게만 처리
+    btn.classList.add('disabled');
+    document.getElementById('choice-next-btn').disabled=true;
+  }
+}
+
+// ══ SPEAK COUNT ══
+function updateSpeakDots(){
+  for(let i=1;i<=3;i++){
+    document.getElementById(`dot-${i}`).className='speak-dot'+(i<=speakCount?' done':'');
+  }
+  const label=document.getElementById('speak-count-label');
+  const msgs=['3번 말하면 체화 완료 🔥','2번 더 말해봐요!','마지막 한 번만 더! 💪','체화 완료! 🔥🔥🔥'];
+  label.textContent=msgs[Math.min(speakCount,3)];
+}
+
+// ══ SPEECH ══
+function resetSpeechResult(){ document.getElementById('speech-result').classList.remove('visible'); }
+function checkSpeechMatch(transcript){
+  const target=currentLesson.correct_en.toLowerCase().replace(/[^a-z\s]/g,'');
+  const said=transcript.toLowerCase().replace(/[^a-z\s]/g,'');
+  const tw=target.split(' ').filter(w=>w.length>2);
+  const sw=said.split(' ');
+  const matched=tw.filter(w=>sw.some(s=>s.includes(w)||w.includes(s)));
+  const ratio=matched.length/tw.length;
+  const el=document.getElementById('speech-result');
+  const icon=document.getElementById('speech-result-icon');
+  const text=document.getElementById('speech-result-text');
+  const sub=document.getElementById('speech-result-sub');
+  el.classList.add('visible');
+  if(ratio>=0.75){ icon.textContent='🎯'; text.textContent='발음이 잘 들려요!'; sub.textContent='원어민이 알아들을 수 있는 발음이에요.'; el.style.background='rgba(0,184,116,0.07)'; el.style.borderColor='rgba(0,184,116,0.2)'; }
+  else if(ratio>=0.4){ icon.textContent='🔄'; text.textContent='조금 더 명확하게 말해봐요'; sub.textContent='천천히 한 번 더 시도해봐요.'; el.style.background='rgba(255,166,0,0.07)'; el.style.borderColor='rgba(255,166,0,0.2)'; }
+  else { icon.textContent='💬'; text.textContent='다시 한번 말해볼까요?'; sub.textContent='정답 표현을 보면서 천천히 따라해봐요.'; el.style.background='rgba(239,68,68,0.07)'; el.style.borderColor='rgba(239,68,68,0.2)'; }
+}
+
+// ══ RECORDING ══
+async function toggleRecording(){
+  if(mediaRecorder&&mediaRecorder.state==='recording') stopRecording();
+  else await startRecording();
+}
+async function startRecording(){
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    audioChunks=[]; mediaRecorder=new MediaRecorder(stream);
+    mediaRecorder.ondataavailable=e=>audioChunks.push(e.data);
+    mediaRecorder.onstop=()=>{ recordedBlob=new Blob(audioChunks,{type:'audio/webm'}); stream.getTracks().forEach(t=>t.stop()); showPlayback(); };
+    mediaRecorder.start(); recordingStartTime=Date.now();
+    document.getElementById('mic-btn').classList.add('recording');
+    document.getElementById('mic-btn').textContent='⏹';
+    document.getElementById('recording-status').classList.add('visible');
+    document.getElementById('speak-hint').style.display='none';
+    resetSpeechResult();
+    if('webkitSpeechRecognition' in window||'SpeechRecognition' in window){
+      const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+      recognition=new SR(); recognition.lang='en-US'; recognition.interimResults=false;
+      recognition.onresult=e=>checkSpeechMatch(e.results[0][0].transcript);
+      recognition.onerror=()=>{}; recognition.start();
+    }
+  }catch(e){ document.getElementById('speak-hint').textContent='마이크 권한이 필요해요.'; document.getElementById('speak-hint').style.display=''; }
+}
+function stopRecording(){
+  if(mediaRecorder&&mediaRecorder.state==='recording'){
+    recordingDuration=Math.round((Date.now()-recordingStartTime)/1000);
+    mediaRecorder.stop();
+    document.getElementById('mic-btn').classList.remove('recording');
+    document.getElementById('mic-btn').textContent='🎤';
+    document.getElementById('recording-status').classList.remove('visible');
+    try{ if(recognition) recognition.stop(); }catch(e){}
+    speakCount=Math.min(speakCount+1,3); updateSpeakDots();
+  }
+}
+function showPlayback(){
+  document.getElementById('playback-area').classList.add('visible');
+  document.getElementById('playback-time').textContent=`${recordingDuration}초`;
+  document.getElementById('speak-hint').textContent=speakCount>=3?'체화 완료! 🔥 완료 버튼을 눌러요':'잘 했어요! 다시 듣거나 한 번 더 말해봐요 👂';
+  document.getElementById('speak-hint').style.display='';
+}
+function playRecording(){
+  if(!recordedBlob)return;
+  if(audioPlayer){audioPlayer.pause();audioPlayer=null;}
+  audioPlayer=new Audio(URL.createObjectURL(recordedBlob));
+  document.getElementById('play-btn').textContent='⏸';
+  audioPlayer.play();
+  audioPlayer.onended=()=>document.getElementById('play-btn').textContent='▶';
+}
+function resetOneSpeakRound(){
+  if(mediaRecorder&&mediaRecorder.state==='recording')stopRecording();
+  if(audioPlayer){audioPlayer.pause();audioPlayer=null;}
+  recordedBlob=null; audioChunks=[];
+  document.getElementById('mic-btn').classList.remove('recording');
+  document.getElementById('mic-btn').textContent='🎤';
+  document.getElementById('recording-status').classList.remove('visible');
+  document.getElementById('playback-area').classList.remove('visible');
+  document.getElementById('speak-hint').textContent='버튼을 눌러 녹음을 시작하세요';
+  document.getElementById('speak-hint').style.display='';
+  document.getElementById('play-btn').textContent='▶';
+  resetSpeechResult();
+}
+function resetRecording(){ resetOneSpeakRound(); speakCount=0; }
+
+// ══ FINISH ══
+function finishLesson(){
+  let newStreak, newSentences, count;
+  if(isGuest){
+    // 비회원: 세션 변수만 업데이트 (localStorage 저장 안 함)
+    guestSentences=Math.min(guestSentences+1, 3); // 최대 3개
+    guestStreak=1; // 접속일 기준 항상 1일
+    newStreak=guestStreak;
+    newSentences=guestSentences;
+    count=0;
+  } else {
+    newStreak=markStreakToday();
+    newSentences=addTodaySentences(1);
+    markWeeklyToday();
+    count=incrementLessonCount();
+  }
+
+  document.getElementById('complete-streak').textContent=newStreak;
+  document.getElementById('complete-sentences').textContent=newSentences;
+  document.getElementById('summary-pattern').textContent=currentLesson.correct_en;
+  document.getElementById('summary-ko').textContent=currentLesson.correct_ko;
+
+  // 완료 타이틀
+  if(newStreak>=7) document.getElementById('complete-title').textContent='7일 연속 달성! 🔥';
+  else if(newStreak>=3) document.getElementById('complete-title').textContent='꾸준히 하고 있어요! 💪';
+  else document.getElementById('complete-title').textContent='잘 했어요!';
+
+  // 공유 버튼 항상 표시
+  document.getElementById('share-btn').style.display='flex';
+
+  // 프리미엄 아니면 완료 광고 표시
+  if(isPremium) document.querySelector('.ad-banner-complete').style.display='none';
+
+  // 비회원: 가입 유도 카드 표시 + 다음 패턴 버튼 숨김
+  const ctaEl=document.getElementById('signup-cta');
+  const nextBtn=document.getElementById('complete-next-btn');
+  const homeBtn=document.getElementById('complete-home-btn');
+  if(isGuest){
+    ctaEl.style.display='block';
+    nextBtn.style.display='none';
+    homeBtn.style.flex='1';
+    homeBtn.style.width='100%';
+  } else {
+    ctaEl.style.display='none';
+    nextBtn.style.display='';
+    homeBtn.style.width='';
+  }
+
+  goTo('screen-complete');
+
+  // 영상 광고 — 15회 이상, 선택형
+  if(!isPremium&&count>=15&&count%5===0){
+    setTimeout(()=>document.getElementById('video-ad-overlay').classList.add('visible'),800);
+  }
+}
+function goCompleteHome(){
+  if(isGuest) goTo('screen-landing');
+  else goTo('screen-welcome');
+}
+async function nextLesson(){ currentLessonIndex++; await loadLesson(); goTo('screen-lesson'); }
+
+// ══ PAYMENT ══
+function mockPayment(){
+  document.getElementById('payment-form-area').style.display='none';
+  const suc=document.getElementById('payment-success-area');
+  suc.style.display='flex'; suc.classList.add('visible');
+}
+function completePayment(){
+  localStorage.setItem('isPremium','true');
+  isPremium=true;
+  document.getElementById('payment-form-area').style.display='flex';
+  document.getElementById('payment-success-area').style.display='none';
+  document.getElementById('payment-success-area').classList.remove('visible');
+  goTo('screen-welcome');
+}
+
+// ══ SHARE CARD ══
+function openShareCard(){
+  const streak=isGuest?guestStreak:getStreak();
+  const sentences=isGuest?guestSentences:getTodaySentences();
+  const lessonCount=isGuest?guestSentences:getLessonCount();
+  const badge=streak>=30?'🏆 '+streak+'일 연속':streak>=7?'🔥 '+streak+'일 연속':streak>=3?'🔥 '+streak+'일 연속':'⭐ 오늘 학습 완료';
+  document.getElementById('sc-badge').textContent=badge;
+  document.getElementById('sc-sentence').textContent='"'+currentLesson.correct_en+'"';
+  document.getElementById('sc-ko').textContent=currentLesson.correct_ko;
+  document.getElementById('sc-streak').textContent=streak+'일';
+  document.getElementById('sc-sentences').textContent=sentences+'개';
+  document.getElementById('sc-lessons').textContent=lessonCount+'회';
+  document.getElementById('share-overlay').classList.add('visible');
+}
+function closeShareCard(){
+  document.getElementById('share-overlay').classList.remove('visible');
+}
+function downloadShareCard(){
+  const card=document.getElementById('share-card');
+  html2canvas(card,{scale:2,useCORS:true,backgroundColor:null}).then(canvas=>{
+    const link=document.createElement('a');
+    link.download='3분업무영어_달성카드.png';
+    link.href=canvas.toDataURL('image/png');
+    link.click();
+  }).catch(()=>{
+    alert('저장 중 오류가 발생했어요. 화면을 캡처해서 저장해주세요.');
+  });
+}
+
+// ══ VIDEO AD ══
+function watchVideoAd(){ document.getElementById('video-ad-overlay').classList.remove('visible'); alert('광고 재생 후 복습 기능 잠금 해제! (연동 예정)'); }
+function skipVideoAd(){ document.getElementById('video-ad-overlay').classList.remove('visible'); }
+</script>
+</body>
+</html>
