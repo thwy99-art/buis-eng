@@ -119,6 +119,7 @@
   .lesson-step{display:none;flex-direction:column;flex:1;animation:fadeIn 0.3s ease}
   .lesson-step.active{display:flex}
   .step-label{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+  .review-label{font-size:12px;font-weight:400;color:var(--text2)}
 
   .situation-card{background:rgba(91,79,255,0.06);border:1px solid rgba(91,79,255,0.15);border-radius:16px;padding:18px;margin-bottom:20px}
   [data-theme="dark"] .situation-card{background:rgba(124,108,255,0.08);border-color:rgba(124,108,255,0.2)}
@@ -300,6 +301,12 @@
   .mypage-row:last-child{border-bottom:none;padding-bottom:0}
   .mypage-row-label{font-size:14px;color:var(--text2)}
   .mypage-row-value{font-size:14px;font-weight:600;color:var(--text)}
+  .toggle-switch{position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0}
+  .toggle-switch input{opacity:0;width:0;height:0;position:absolute}
+  .toggle-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#ccc;border-radius:12px;transition:.3s}
+  .toggle-slider:before{position:absolute;content:"";height:18px;width:18px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+  input:checked+.toggle-slider{background:var(--accent)}
+  input:checked+.toggle-slider:before{transform:translateX(20px)}
   .btn-primary{width:100%;padding:16px;background:linear-gradient(135deg,var(--accent),#8c7cff);border:none;border-radius:14px;color:white;font-family:'Noto Sans KR',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.2s;margin-top:auto}
   .btn-primary:active{transform:scale(0.98);opacity:0.9}
   .btn-primary:disabled{opacity:0.35}
@@ -485,7 +492,10 @@
 
     <!-- STEP 1 -->
     <div class="lesson-step active" id="step-1">
-      <div class="step-label">알맞은 표현 고르기</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div class="step-label" style="margin-bottom:0">알맞은 표현 고르기</div>
+        <div class="review-label" id="review-label" style="display:none"></div>
+      </div>
       <div class="situation-card">
         <div class="situation-label">상황</div>
         <div class="situation-text" id="situation-text"></div>
@@ -680,6 +690,19 @@
         </div>
       </div>
 
+      <!-- 알림 설정 -->
+      <div class="mypage-section">
+        <div class="mypage-section-label">알림 설정</div>
+        <div class="mypage-row">
+          <span class="mypage-row-label">이메일 학습 알림</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="email-notifications-toggle" checked onchange="saveEmailNotifications(this.checked)">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <p style="font-size:12px;color:var(--text2);margin:8px 0 0;line-height:1.5">스트릭 위기, 주간 리포트 등 학습 독려 이메일을 받아요.</p>
+      </div>
+
       <!-- 로그아웃 / 탈퇴 -->
       <button class="btn-secondary" onclick="logout()" style="margin-top:8px">로그아웃</button>
       <button onclick="openDeleteModal()" style="width:100%;padding:12px;background:none;border:none;color:var(--error);font-family:'Noto Sans KR',sans-serif;font-size:13px;cursor:pointer;margin-top:6px">회원 탈퇴</button>
@@ -788,6 +811,7 @@ function dbRowToLesson(row) {
   const opts = { a: row.option_a, b: row.option_b, c: row.option_c };
   const correctEn = opts[row.correct_option];
   return {
+    id:         row.id,
     situation:  row.situation,
     correct_en: correctEn,
     correct_ko: row.correct_ko || '',
@@ -805,7 +829,7 @@ async function getLessons(job) {
 
   const { data, error } = await _supabase
     .from('lessons')
-    .select('situation,option_a,option_b,option_c,correct_option,correct_ko,explanation_kr')
+    .select('id,situation,option_a,option_b,option_c,correct_option,correct_ko,explanation_kr')
     .eq('job', job)
     .order('id');
 
@@ -905,6 +929,7 @@ function openMyPage(){
     if(c.getAttribute('onclick')&&c.getAttribute('onclick').includes("'"+saved+"'")) c.classList.add('selected');
   });
   document.getElementById('mypage-job-save-btn').disabled=true;
+  loadEmailNotificationPref();
   goTo('screen-mypage');
 }
 function selectMyPageJob(el, job){
@@ -950,6 +975,7 @@ async function deleteAccount(){
 
 // ══ STATE ══
 let currentJob=null, currentLessonIndex=0, currentLesson=null, selectedChoice=null;
+let isReviewMode=false, reviewQueue=[], reviewQueueIndex=0, hadWrongAnswer=false;
 let mediaRecorder=null, audioChunks=[], recordedBlob=null, audioPlayer=null;
 let recordingStartTime=null, recordingDuration=0;
 let isDark=false, speakCount=0, totalLessonCount=0;
@@ -1006,6 +1032,58 @@ function incrementLessonCount(){ const n=getLessonCount()+1; localStorage.setIte
 function getWrongCount(){ return parseInt(localStorage.getItem('wrongCount')||'0'); }
 function addWrongCount(){ const n=getWrongCount()+1; localStorage.setItem('wrongCount',String(n)); return n; }
 
+// ══ SRS ══
+function getSRSData(){ return JSON.parse(localStorage.getItem('srsData')||'{}'); }
+function saveSRSData(d){ localStorage.setItem('srsData', JSON.stringify(d)); }
+
+function addToSRS(lessonId){
+  if(!isPremium||isGuest||!lessonId) return;
+  const d=getSRSData();
+  if(d[lessonId]) return;
+  const t=today();
+  d[lessonId]={interval:1,easeFactor:2.5,repetitions:0,nextReview:t,addedAt:t,lastStudied:t};
+  saveSRSData(d);
+}
+
+function updateSRSItem(lessonId, quality){
+  const d=getSRSData();
+  const item=d[lessonId]||{interval:1,easeFactor:2.5,repetitions:0};
+  if(quality<3){
+    item.repetitions=0; item.interval=1;
+  } else {
+    if(item.repetitions===0) item.interval=1;
+    else if(item.repetitions===1) item.interval=3;
+    else item.interval=Math.round(item.interval*item.easeFactor);
+    item.repetitions+=1;
+    item.easeFactor=Math.max(1.3, item.easeFactor+0.1-(5-quality)*(0.08+(5-quality)*0.02));
+  }
+  item.nextReview=addDaysToDate(today(), item.interval);
+  item.lastStudied=today();
+  d[lessonId]=item;
+  saveSRSData(d);
+}
+
+function getTodayDueIds(){
+  const d=getSRSData(), t=today();
+  return Object.entries(d).filter(([,item])=>item.nextReview<=t).map(([id])=>Number(id));
+}
+
+function addDaysToDate(dateStr, days){
+  const d=new Date(dateStr); d.setDate(d.getDate()+days); return d.toISOString().slice(0,10);
+}
+
+function getDaysAgoLabel(lessonId){
+  const item=getSRSData()[lessonId];
+  if(!item?.lastStudied) return null;
+  const days=Math.floor((new Date(today())-new Date(item.lastStudied))/86400000);
+  if(days===0) return '오늘 학습';
+  if(days===1) return '어제 학습';
+  if(days<6) return `${days}일 전 학습`;
+  if(days<30) return `${Math.floor(days/7)}주 전 학습`;
+  const months=Math.floor(days/30);
+  return `${months}달 전 학습`;
+}
+
 // ══ LOGIN ══
 async function goToLogin(mode){
   if(mode === 'login'){
@@ -1046,7 +1124,48 @@ async function handleStartBtn(){
   }
 }
 
-async function sendAppEmail(type, email){
+async function syncProfileToSupabase(){
+  if(isGuest) return;
+  try {
+    const { data:{ session } } = await _supabase.auth.getSession();
+    if(!session) return;
+    await _supabase.from('profiles').upsert({
+      id: session.user.id,
+      email: userEmail,
+      last_lesson_at: new Date().toISOString(),
+      lesson_count: getLessonCount(),
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'id' });
+  } catch(e) { console.warn('profile sync failed', e); }
+}
+async function saveEmailNotifications(enabled){
+  if(isGuest) return;
+  try {
+    const { data:{ session } } = await _supabase.auth.getSession();
+    if(!session) return;
+    await _supabase.from('profiles').upsert({
+      id: session.user.id,
+      email_notifications: enabled,
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'id' });
+  } catch(e) { console.warn('email pref save failed', e); }
+}
+async function loadEmailNotificationPref(){
+  if(isGuest) return;
+  try {
+    const { data:{ session } } = await _supabase.auth.getSession();
+    if(!session) return;
+    const { data } = await _supabase.from('profiles')
+      .select('email_notifications')
+      .eq('id', session.user.id)
+      .single();
+    if(data != null){
+      document.getElementById('email-notifications-toggle').checked = data.email_notifications ?? true;
+    }
+  } catch(e) {}
+}
+
+async function sendAppEmail(type, email, extraData = {}){
   try {
     const { data:{ session } } = await _supabase.auth.getSession();
     const token = session?.access_token || SUPABASE_ANON_KEY;
@@ -1056,7 +1175,7 @@ async function sendAppEmail(type, email){
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
       },
-      body: JSON.stringify({ type, email }),
+      body: JSON.stringify({ type, email, ...extraData }),
     });
     const data = await res.json();
     console.log('이메일 발송 결과:', res.status, data);
@@ -1247,10 +1366,27 @@ function selectJob(el,job){
   document.getElementById('job-next-btn').disabled=false;
 }
 async function startLessonFromHome(){
-  // 저장된 직무로 바로 학습 시작 (직무 선택 화면 건너뜀)
   const saved=localStorage.getItem('currentJob');
   if(saved) currentJob=saved;
-  if(!currentJob) currentJob='designer'; // 폴백
+  if(!currentJob) currentJob='designer';
+
+  // 유료 유저: 오늘 복습할 항목 있으면 복습 먼저
+  if(isPremium && !isGuest){
+    const list=await getLessons(currentJob);
+    const dueIds=getTodayDueIds();
+    const dueItems=list.filter(l=>dueIds.includes(l.id));
+    if(dueItems.length>0){
+      isReviewMode=true;
+      reviewQueue=dueItems.slice(0,10);
+      reviewQueueIndex=0;
+      currentLesson=reviewQueue[0];
+      renderCurrentLesson();
+      goTo('screen-lesson');
+      return;
+    }
+  }
+
+  isReviewMode=false;
   currentLessonIndex=0;
   await loadLesson();
   goTo('screen-lesson');
@@ -1261,15 +1397,18 @@ async function loadLesson(){
   const list = await getLessons(currentJob);
   if (!list.length) { console.error('no lessons for', currentJob); return; }
   currentLesson=list[currentLessonIndex%list.length];
+  renderCurrentLesson();
+}
+
+function renderCurrentLesson(){
+  hadWrongAnswer=false;
   document.getElementById('situation-text').textContent=currentLesson.situation;
   const c=document.getElementById('choices-container');
   c.innerHTML='';
-  // 선택지 순서 셔플 (정답 위치 고정 방지)
   const shuffledChoices=shuffleArray(currentLesson.choices.map((ch,i)=>({...ch,origIndex:i})));
-  shuffledChoices.forEach((ch,i)=>{
+  shuffledChoices.forEach((ch)=>{
     const b=document.createElement('button');
     b.className='choice-btn';
-    // 한국어 숨김 처리 — choice-ko는 선택 전 max-height:0
     b.innerHTML=`<div class="choice-en">${ch.en}</div><div class="choice-ko">${ch.ko}</div>`;
     if(ch.isCorrect) b.classList.add('correct-answer-marker');
     b.onclick=()=>selectChoice(b,ch.isCorrect,ch.feedback);
@@ -1281,6 +1420,16 @@ async function loadLesson(){
   document.getElementById('feedback-title').className='feedback-title';
   resetRecording();
   goStep(1);
+
+  // 유료 유저: N일 전 학습 레이블
+  const rl=document.getElementById('review-label');
+  if(isPremium && currentLesson.id){
+    const label=getDaysAgoLabel(currentLesson.id);
+    if(label){ rl.textContent='🔁 '+label; rl.style.display=''; }
+    else rl.style.display='none';
+  } else {
+    rl.style.display='none';
+  }
 }
 
 function goStep(step){
@@ -1319,6 +1468,9 @@ function selectChoice(btn,isCorrect,feedback){
     ft.textContent='다시 골라봐요';
     document.getElementById('feedback-text').textContent=feedback;
     addWrongCount();
+    hadWrongAnswer=true;
+    // 일반 학습 모드에서 유료 유저: SRS 큐에 등록
+    if(!isReviewMode && isPremium) addToSRS(currentLesson.id);
     // 오답 버튼은 다시 누를 수 없게만 처리
     btn.classList.add('disabled');
     document.getElementById('choice-next-btn').disabled=true;
@@ -1434,6 +1586,10 @@ function finishLesson(){
     newSentences=addTodaySentences(1);
     markWeeklyToday();
     count=incrementLessonCount();
+    if([10,30,100].includes(count)){
+      sendAppEmail(`milestone-${count}`, userEmail, { lessonCount: count }).catch(()=>{});
+    }
+    syncProfileToSupabase().catch(()=>{});
   }
 
   document.getElementById('complete-streak').textContent=newStreak;
@@ -1468,6 +1624,16 @@ function finishLesson(){
     homeBtn.style.width='';
   }
 
+  // 복습 모드: SRS 업데이트 + 다음 버튼 텍스트 변경
+  const nextBtn=document.getElementById('complete-next-btn');
+  if(isReviewMode){
+    updateSRSItem(currentLesson.id, hadWrongAnswer ? 3 : 5);
+    const remaining=reviewQueue.length-reviewQueueIndex-1;
+    nextBtn.textContent=remaining>0?`다음 복습 (${remaining}개 남음) →`:'새 학습 시작 →';
+  } else {
+    nextBtn.textContent='다음 패턴 →';
+  }
+
   goTo('screen-complete');
 
   // 영상 광고 — 15회 이상, 선택형
@@ -1479,7 +1645,25 @@ function goCompleteHome(){
   if(isGuest) goTo('screen-landing');
   else goTo('screen-welcome');
 }
-async function nextLesson(){ currentLessonIndex++; await loadLesson(); goTo('screen-lesson'); }
+async function nextLesson(){
+  if(isReviewMode){
+    reviewQueueIndex++;
+    if(reviewQueueIndex<reviewQueue.length){
+      currentLesson=reviewQueue[reviewQueueIndex];
+      renderCurrentLesson();
+      goTo('screen-lesson');
+    } else {
+      isReviewMode=false;
+      currentLessonIndex=0;
+      await loadLesson();
+      goTo('screen-lesson');
+    }
+    return;
+  }
+  currentLessonIndex++;
+  await loadLesson();
+  goTo('screen-lesson');
+}
 
 // ══ PAYMENT ══
 function mockPayment(){
