@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html><!-- v20260426-3cards -->
 <html lang="ko" data-theme="light">
 <head>
 <meta charset="UTF-8">
@@ -193,7 +193,7 @@
   .complete-emoji{font-size:64px;animation:bounce 0.6s ease}
   @keyframes bounce{0%{transform:scale(0)}70%{transform:scale(1.1)}100%{transform:scale(1)}}
   .complete-title{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-0.5px;color:var(--text)}
-  .complete-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%}
+  .complete-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;width:100%}
   .complete-stat{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;text-align:center;box-shadow:var(--shadow)}
   .complete-stat-number{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;line-height:1}
   .complete-stat-label{font-size:12px;color:var(--text2);margin-top:4px}
@@ -409,16 +409,16 @@
           <span class="today-done-badge pending" id="today-done-badge">오늘 아직</span>
         </div>
         <div class="weekly-row" id="weekly-dots"></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-          <div style="background:var(--surface2);border-radius:14px;padding:12px 6px;text-align:center;">
+        <div style="display:flex;gap:8px">
+          <div style="flex:1;min-width:0;background:var(--surface2);border-radius:14px;padding:12px 4px;text-align:center">
             <div class="stat-number" id="home-streak">0</div>
             <div class="stat-label">🔥 연속 학습일</div>
           </div>
-          <div style="background:var(--surface2);border-radius:14px;padding:12px 6px;text-align:center;">
+          <div style="flex:1;min-width:0;background:var(--surface2);border-radius:14px;padding:12px 4px;text-align:center">
             <div class="stat-number" id="home-sentences">0</div>
             <div class="stat-label">💬 오늘 말한 문장</div>
           </div>
-          <div style="background:var(--surface2);border-radius:14px;padding:12px 6px;text-align:center;">
+          <div style="flex:1;min-width:0;background:var(--surface2);border-radius:14px;padding:12px 4px;text-align:center">
             <div class="stat-number" id="home-lesson-count">0</div>
             <div class="stat-label">📚 누적 학습</div>
           </div>
@@ -558,6 +558,10 @@
         <div class="complete-stat">
           <div class="complete-stat-number num-sentences" id="complete-sentences">0</div>
           <div class="complete-stat-label">💬 오늘 말한 문장</div>
+        </div>
+        <div class="complete-stat">
+          <div class="complete-stat-number" id="complete-lessons">0</div>
+          <div class="complete-stat-label">📚 누적 학습</div>
         </div>
       </div>
       <div class="complete-summary">
@@ -781,15 +785,18 @@ _supabase.auth.onAuthStateChange((event, session) => {
 const lessonsCache = {};
 
 function dbRowToLesson(row) {
+  const opts = { a: row.option_a, b: row.option_b, c: row.option_c };
+  const correctEn = opts[row.correct_option];
   return {
     situation:  row.situation,
-    correct_en: row.correct,
+    correct_en: correctEn,
     correct_ko: row.correct_ko || '',
-    choices: [
-      { en: row.correct,  ko: row.correct_ko || '', isCorrect: true,  feedback: row.reason },
-      { en: row.wrong1,   ko: '',                   isCorrect: false, feedback: '' },
-      { en: row.wrong2,   ko: '',                   isCorrect: false, feedback: '' },
-    ]
+    choices: ['a', 'b', 'c'].map(key => ({
+      en:        opts[key],
+      ko:        key === row.correct_option ? (row.correct_ko || '') : '',
+      isCorrect: key === row.correct_option,
+      feedback:  key === row.correct_option ? (row.explanation_kr || '') : '',
+    }))
   };
 }
 
@@ -798,7 +805,7 @@ async function getLessons(job) {
 
   const { data, error } = await _supabase
     .from('lessons')
-    .select('situation,correct,correct_ko,wrong1,wrong2,reason')
+    .select('situation,option_a,option_b,option_c,correct_option,correct_ko,explanation_kr')
     .eq('job', job)
     .order('id');
 
@@ -919,7 +926,7 @@ async function logout(){
   await _supabase.auth.signOut();
   localStorage.clear();
   userEmail=''; currentJob=null; isPremium=false;
-  location.reload();
+  window.location.replace(location.pathname + '?r=' + Date.now());
 }
 function openDeleteModal(){
   document.getElementById('delete-modal').classList.add('visible');
@@ -1431,6 +1438,7 @@ function finishLesson(){
 
   document.getElementById('complete-streak').textContent=newStreak;
   document.getElementById('complete-sentences').textContent=newSentences;
+  document.getElementById('complete-lessons').textContent=getLessonCount();
   document.getElementById('summary-pattern').textContent=currentLesson.correct_en;
   document.getElementById('summary-ko').textContent=currentLesson.correct_ko;
 
