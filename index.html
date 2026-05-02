@@ -1625,7 +1625,6 @@ function finishLesson(){
   }
 
   // 복습 모드: SRS 업데이트 + 다음 버튼 텍스트 변경
-  const nextBtn=document.getElementById('complete-next-btn');
   if(isReviewMode){
     updateSRSItem(currentLesson.id, hadWrongAnswer ? 3 : 5);
     const remaining=reviewQueue.length-reviewQueueIndex-1;
