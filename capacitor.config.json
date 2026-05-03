@@ -1,0 +1,16 @@
+{
+  "appId": "io.github.thwy99art.buiseng",
+  "appName": "3분 업무 영어",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "ios": {
+    "scrollEnabled": false
+  },
+  "plugins": {
+    "SpeechRecognition": {
+      "permissions": ["microphone", "speechRecognition"]
+    }
+  }
+}
