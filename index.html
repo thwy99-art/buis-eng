@@ -690,6 +690,16 @@
         </div>
       </div>
 
+      <!-- 마이크 설정 -->
+      <div class="mypage-section">
+        <div class="mypage-section-label">마이크</div>
+        <div class="mypage-row">
+          <span class="mypage-row-label">권한 상태</span>
+          <span class="mypage-row-value" id="mypage-mic-status">확인 중...</span>
+        </div>
+        <button class="btn-secondary" onclick="retryMicPermission()" style="margin-top:12px;font-size:13px;padding:10px">마이크 다시 허용하기</button>
+      </div>
+
       <!-- 알림 설정 -->
       <div class="mypage-section">
         <div class="mypage-section-label">알림 설정</div>
@@ -706,6 +716,18 @@
       <!-- 로그아웃 / 탈퇴 -->
       <button class="btn-secondary" onclick="logout()" style="margin-top:8px">로그아웃</button>
       <button onclick="openDeleteModal()" style="width:100%;padding:12px;background:none;border:none;color:var(--error);font-family:'Noto Sans KR',sans-serif;font-size:13px;cursor:pointer;margin-top:6px">회원 탈퇴</button>
+    </div>
+  </div>
+
+  <!-- ══ 마이크 사전 안내 모달 ══ -->
+  <div class="confirm-modal" id="mic-permission-modal">
+    <div class="confirm-modal-box">
+      <div style="font-size:36px;margin-bottom:8px">🎤</div>
+      <div class="confirm-modal-title">마이크 허용이 필요해요</div>
+      <div class="confirm-modal-desc">발음 연습을 위해 마이크를 사용해요.<br>다음 화면에서 <b>'허용'</b>을 꼭 눌러주세요!<br><br>한 번만 설정하면 다음부터는 바로 돼요.</div>
+      <div class="confirm-modal-actions">
+        <button class="btn-primary" style="flex:1" onclick="confirmMicPermission()">확인했어요</button>
+      </div>
     </div>
   </div>
 
@@ -930,6 +952,7 @@ function openMyPage(){
   });
   document.getElementById('mypage-job-save-btn').disabled=true;
   loadEmailNotificationPref();
+  updateMicStatus();
   goTo('screen-mypage');
 }
 function selectMyPageJob(el, job){
@@ -1511,7 +1534,35 @@ async function toggleRecording(){
   if(mediaRecorder&&mediaRecorder.state==='recording') stopRecording();
   else await startRecording();
 }
+function confirmMicPermission(){
+  localStorage.setItem('mic_prompted','1');
+  document.getElementById('mic-permission-modal').classList.remove('visible');
+  startRecording();
+}
+async function updateMicStatus(){
+  const el=document.getElementById('mypage-mic-status');
+  if(!el)return;
+  if(!navigator.permissions){el.textContent='-';return;}
+  try{
+    const perm=await navigator.permissions.query({name:'microphone'});
+    const labels={granted:'✅ 허용됨',denied:'❌ 차단됨',prompt:'미설정'};
+    el.textContent=labels[perm.state]||perm.state;
+    perm.onchange=()=>updateMicStatus();
+  }catch(e){el.textContent='-';}
+}
+async function retryMicPermission(){
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    stream.getTracks().forEach(t=>t.stop());
+    localStorage.setItem('mic_prompted','1');
+  }catch(e){}
+  updateMicStatus();
+}
 async function startRecording(){
+  if(!localStorage.getItem('mic_prompted')){
+    document.getElementById('mic-permission-modal').classList.add('visible');
+    return;
+  }
   try{
     const stream=await navigator.mediaDevices.getUserMedia({
       audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:false,channelCount:1}
