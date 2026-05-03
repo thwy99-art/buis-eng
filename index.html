@@ -1540,7 +1540,11 @@ async function startRecording(){
   }catch(e){
     const hintEl=document.getElementById('speak-hint');
     if(e.name==='NotAllowedError'||e.name==='PermissionDeniedError'){
-      hintEl.innerHTML='마이크가 차단됐어요.<br><span style="font-size:12px;color:var(--text2)">주소창 왼쪽 🔒 아이콘 → 마이크 → <b>허용</b>으로 변경 후 새로고침해주세요.</span>';
+      const isMobile=/iPhone|iPad|Android/i.test(navigator.userAgent);
+      const guide=isMobile
+        ? '오른쪽 하단 <b>⋯</b> 메뉴 → <b>사이트 설정</b> → <b>마이크 → 허용</b> 후 돌아오세요.'
+        : '주소창 왼쪽 🔒 아이콘 → <b>마이크 → 허용</b>으로 변경 후 새로고침해주세요.';
+      hintEl.innerHTML='마이크가 차단됐어요.<br><span style="font-size:12px;color:var(--text2)">'+guide+'</span>';
     } else if(e.name==='NotFoundError'){
       hintEl.textContent='마이크를 찾을 수 없어요. 기기에 마이크가 있는지 확인해주세요.';
     } else {
