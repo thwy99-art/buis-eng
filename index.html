@@ -1513,10 +1513,18 @@ async function toggleRecording(){
 }
 async function startRecording(){
   try{
-    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
-    audioChunks=[]; mediaRecorder=new MediaRecorder(stream);
+    const stream=await navigator.mediaDevices.getUserMedia({
+      audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:false,channelCount:1}
+    });
+    // Amplify recording volume 3x via GainNode
+    const audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    const src=audioCtx.createMediaStreamSource(stream);
+    const gain=audioCtx.createGain(); gain.gain.value=3;
+    const dest=audioCtx.createMediaStreamDestination();
+    src.connect(gain); gain.connect(dest);
+    audioChunks=[]; mediaRecorder=new MediaRecorder(dest.stream);
     mediaRecorder.ondataavailable=e=>audioChunks.push(e.data);
-    mediaRecorder.onstop=()=>{ recordedBlob=new Blob(audioChunks,{type:'audio/webm'}); stream.getTracks().forEach(t=>t.stop()); showPlayback(); };
+    mediaRecorder.onstop=()=>{ recordedBlob=new Blob(audioChunks,{type:'audio/webm'}); stream.getTracks().forEach(t=>t.stop()); audioCtx.close(); showPlayback(); };
     mediaRecorder.start(); recordingStartTime=Date.now();
     document.getElementById('mic-btn').classList.add('recording');
     document.getElementById('mic-btn').textContent='⏹';
@@ -1529,7 +1537,17 @@ async function startRecording(){
       recognition.onresult=e=>checkSpeechMatch(e.results[0][0].transcript);
       recognition.onerror=()=>{}; recognition.start();
     }
-  }catch(e){ document.getElementById('speak-hint').textContent='마이크 권한이 필요해요.'; document.getElementById('speak-hint').style.display=''; }
+  }catch(e){
+    const hintEl=document.getElementById('speak-hint');
+    if(e.name==='NotAllowedError'||e.name==='PermissionDeniedError'){
+      hintEl.innerHTML='마이크가 차단됐어요.<br><span style="font-size:12px;color:var(--text2)">주소창 왼쪽 🔒 아이콘 → 마이크 → <b>허용</b>으로 변경 후 새로고침해주세요.</span>';
+    } else if(e.name==='NotFoundError'){
+      hintEl.textContent='마이크를 찾을 수 없어요. 기기에 마이크가 있는지 확인해주세요.';
+    } else {
+      hintEl.textContent='마이크를 사용할 수 없어요. ('+e.name+')';
+    }
+    hintEl.style.display='';
+  }
 }
 function stopRecording(){
   if(mediaRecorder&&mediaRecorder.state==='recording'){
