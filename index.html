@@ -10,7 +10,7 @@
   @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
 
   :root {
-    --bg:#f5f5f0;--surface:#fff;--surface2:#ededea;--accent:#5b4fff;--accent2:#ff4d77;
+    --bg:#ffff00;--surface:#fff;--surface2:#ededea;--accent:#5b4fff;--accent2:#ff4d77;
     --text:#111118;--text2:#666680;--success:#00b874;--error:#ef4444;--border:rgba(0,0,0,0.08);--shadow:0 2px 12px rgba(0,0,0,0.07);
   }
   [data-theme="dark"] {
@@ -1626,15 +1626,21 @@ async function startRecording(){
     const stream=await navigator.mediaDevices.getUserMedia({
       audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:false,channelCount:1}
     });
-    // Amplify recording volume 3x via GainNode
-    const audioCtx=new (window.AudioContext||window.webkitAudioContext)();
-    const src=audioCtx.createMediaStreamSource(stream);
-    const gain=audioCtx.createGain(); gain.gain.value=3;
-    const dest=audioCtx.createMediaStreamDestination();
-    src.connect(gain); gain.connect(dest);
-    audioChunks=[]; mediaRecorder=new MediaRecorder(dest.stream);
+    const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
+    const mimeType=MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?'audio/webm;codecs=opus':MediaRecorder.isTypeSupported('audio/webm')?'audio/webm':MediaRecorder.isTypeSupported('audio/mp4')?'audio/mp4':'';
+    let recordStream=stream, audioCtx=null;
+    if(!isIOS){
+      // 데스크탑: AudioContext로 볼륨 3배 증폭
+      audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+      const src=audioCtx.createMediaStreamSource(stream);
+      const gain=audioCtx.createGain(); gain.gain.value=3;
+      const dest=audioCtx.createMediaStreamDestination();
+      src.connect(gain); gain.connect(dest);
+      recordStream=dest.stream;
+    }
+    audioChunks=[]; mediaRecorder=mimeType?new MediaRecorder(recordStream,{mimeType}):new MediaRecorder(recordStream);
     mediaRecorder.ondataavailable=e=>audioChunks.push(e.data);
-    mediaRecorder.onstop=()=>{ recordedBlob=new Blob(audioChunks,{type:'audio/webm'}); stream.getTracks().forEach(t=>t.stop()); audioCtx.close(); showPlayback(); };
+    mediaRecorder.onstop=()=>{ recordedBlob=new Blob(audioChunks,{type:mimeType||'audio/mp4'}); stream.getTracks().forEach(t=>t.stop()); if(audioCtx)audioCtx.close(); showPlayback(); };
     mediaRecorder.start(); recordingStartTime=Date.now();
     document.getElementById('mic-btn').classList.add('recording');
     document.getElementById('mic-btn').textContent='⏹';
