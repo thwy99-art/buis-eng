@@ -171,11 +171,13 @@
   .rec-dot{width:8px;height:8px;border-radius:50%;background:var(--accent2);animation:blink 1s infinite}
   @keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
 
-  .speech-result{border-radius:12px;padding:12px 16px;margin-bottom:8px;display:none;text-align:center;border:1px solid var(--border)}
+  .speech-result{border-radius:16px;padding:16px;margin-bottom:8px;display:none;text-align:center;border:1px solid var(--border)}
   .speech-result.visible{display:block;animation:fadeIn 0.3s ease}
-  .speech-result-icon{font-size:22px;margin-bottom:4px}
-  .speech-result-text{font-size:13px;font-weight:600;color:var(--text)}
-  .speech-result-sub{font-size:12px;color:var(--text2);margin-top:2px}
+  .speech-result-label{font-size:15px;font-weight:700;margin-bottom:10px}
+  .speech-result-words{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;line-height:1.7;margin-bottom:10px;word-break:break-word}
+  .word-ok{color:#00b874}
+  .word-miss{color:#ef4444;text-decoration:underline wavy #ef4444}
+  .speech-result-sub{font-size:12px;color:var(--text2);margin-top:2px;line-height:1.5}
 
   .playback-area{background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:14px 16px;display:none;align-items:center;gap:12px;margin-bottom:4px}
   .playback-area.visible{display:flex}
@@ -529,8 +531,8 @@
         <button class="mic-btn" id="mic-btn" onclick="toggleRecording()">🎤</button>
       </div>
       <div class="speech-result" id="speech-result">
-        <div class="speech-result-icon" id="speech-result-icon">👍</div>
-        <div class="speech-result-text" id="speech-result-text"></div>
+        <div class="speech-result-label" id="speech-result-label"></div>
+        <div class="speech-result-words" id="speech-result-words"></div>
         <div class="speech-result-sub" id="speech-result-sub"></div>
       </div>
       <div class="playback-area" id="playback-area">
@@ -1606,20 +1608,49 @@ function updateSpeakDots(){
 // ══ SPEECH ══
 function resetSpeechResult(){ document.getElementById('speech-result').classList.remove('visible'); }
 function checkSpeechMatch(transcript){
-  const target=currentLesson.correct_en.toLowerCase().replace(/[^a-z\s]/g,'');
+  const targetRaw=currentLesson.correct_en;
+  const targetWords=targetRaw.split(' ');
   const said=transcript.toLowerCase().replace(/[^a-z\s]/g,'');
-  const tw=target.split(' ').filter(w=>w.length>2);
   const sw=said.split(' ');
-  const matched=tw.filter(w=>sw.some(s=>s.includes(w)||w.includes(s)));
-  const ratio=matched.length/tw.length;
+
+  const missedWords=[];
+  const highlightedHTML=targetWords.map(w=>{
+    const clean=w.toLowerCase().replace(/[^a-z]/g,'');
+    if(clean.length<=2) return `<span class="word-ok">${w}</span>`;
+    const hit=sw.some(s=>s.includes(clean)||clean.includes(s));
+    if(!hit) missedWords.push(w.replace(/[^a-zA-Z]/g,''));
+    return hit?`<span class="word-ok">${w}</span>`:`<span class="word-miss">${w}</span>`;
+  }).join(' ');
+
+  const total=targetWords.filter(w=>w.toLowerCase().replace(/[^a-z]/g,'').length>2).length;
+  const missed=missedWords.length;
+  const ratio=total>0?(total-missed)/total:1;
+
   const el=document.getElementById('speech-result');
-  const icon=document.getElementById('speech-result-icon');
-  const text=document.getElementById('speech-result-text');
+  const label=document.getElementById('speech-result-label');
+  const words=document.getElementById('speech-result-words');
   const sub=document.getElementById('speech-result-sub');
+
+  words.innerHTML=highlightedHTML;
   el.classList.add('visible');
-  if(ratio>=0.75){ icon.textContent='🎯'; text.textContent='발음이 잘 들려요!'; sub.textContent='원어민이 알아들을 수 있는 발음이에요.'; el.style.background='rgba(0,184,116,0.07)'; el.style.borderColor='rgba(0,184,116,0.2)'; }
-  else if(ratio>=0.4){ icon.textContent='🔄'; text.textContent='조금 더 명확하게 말해봐요'; sub.textContent='천천히 한 번 더 시도해봐요.'; el.style.background='rgba(255,166,0,0.07)'; el.style.borderColor='rgba(255,166,0,0.2)'; }
-  else { icon.textContent='💬'; text.textContent='다시 한번 말해볼까요?'; sub.textContent='정답 표현을 보면서 천천히 따라해봐요.'; el.style.background='rgba(239,68,68,0.07)'; el.style.borderColor='rgba(239,68,68,0.2)'; }
+
+  if(ratio>=0.8){
+    label.textContent='🟢 실전에서 바로 써도 돼요';
+    sub.textContent='완벽해요! 바로 써먹어요 💪';
+    el.style.background='rgba(0,184,116,0.06)';
+    el.style.borderColor='rgba(0,184,116,0.25)';
+  } else if(ratio>=0.5){
+    label.textContent='🟡 조금만 다듬으면 충분해요';
+    const hint=missedWords.length>0?`'${missedWords[0]}'을(를) 다시 한 번 연습해봐요`:'천천히 한 번 더 해봐요';
+    sub.textContent=hint;
+    el.style.background='rgba(255,166,0,0.06)';
+    el.style.borderColor='rgba(255,166,0,0.25)';
+  } else {
+    label.textContent='🔴 연습이 좀 더 필요해요';
+    sub.textContent='정답 표현을 보면서 천천히 따라해봐요';
+    el.style.background='rgba(239,68,68,0.06)';
+    el.style.borderColor='rgba(239,68,68,0.2)';
+  }
 }
 
 // ══ RECORDING ══
