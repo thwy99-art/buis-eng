@@ -811,8 +811,16 @@ const SUPABASE_ANON_KEY = 'sb_publishable_O3Kqjfj7owJJ2QzqeQrnOw_WWZi3WDv';
 
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// ══ iOS PWA Google OAuth 브리지 (쿠키는 Safari↔PWA 공유됨) ══
+let _pwaReturnOverlay = false;
+function _setCk(n,v,d){const e=new Date(Date.now()+d*86400000).toUTCString();document.cookie=`${n}=${encodeURIComponent(v)}; path=/; expires=${e}; SameSite=Lax`;}
+function _getCk(n){const m=document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]*)'));return m?decodeURIComponent(m[1]):null;}
+function _delCk(n){document.cookie=`${n}=; path=/; max-age=0`;}
+function _isPWA(){return window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;}
+
 // OAuth 리다이렉트 후 세션이 뒤늦게 처리될 때를 대비한 리스너
 _supabase.auth.onAuthStateChange((event, session) => {
+  if (_pwaReturnOverlay) return; // 복귀 안내 표시 중엔 앱 화면 전환 차단
   if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') && session) {
     userEmail = session.user.email;
     localStorage.setItem('userEmail', userEmail);
@@ -1208,6 +1216,8 @@ async function sendAppEmail(type, email, extraData = {}){
 }
 
 async function loginWithGoogle(){
+  // iOS: PWA에서 호출 시 쿠키 플래그 설정 (Safari OAuth 완료 후 복귀 감지용)
+  if (_isPWA()) _setCk('pwa_g_pending','1',1);
   await _supabase.auth.signInWithOAuth({
     provider:'google',
     options:{ redirectTo: window.location.origin + window.location.pathname }
@@ -1340,6 +1350,55 @@ function renderWeeklyDots(){
 window.addEventListener('DOMContentLoaded', async ()=>{
   const savedJob=localStorage.getItem('currentJob');
   if(savedJob) currentJob=savedJob;
+
+  // ── iOS PWA Google OAuth 처리 ──
+  const _hash = window.location.hash;
+  const _isOAuthCb = _hash.includes('access_token=') || _hash.includes('error_description=');
+  const _fromPWA = _getCk('pwa_g_pending');
+  const _standalone = _isPWA();
+
+  // Case A: Safari에서 OAuth 콜백 수신 (PWA에서 시작한 구글 로그인)
+  if (_fromPWA && _isOAuthCb && !_standalone) {
+    _delCk('pwa_g_pending');
+    _pwaReturnOverlay = true;
+    document.getElementById('pwa-return-overlay').style.display = 'flex';
+    // Supabase가 해시에서 세션 처리하면 쿠키에 저장 (PWA가 읽기 위해)
+    const _saveToCookies = (session) => {
+      if (session?.access_token) {
+        _setCk('pwa_at', session.access_token, 1);
+        _setCk('pwa_rt', session.refresh_token, 30);
+      }
+    };
+    _supabase.auth.onAuthStateChange((ev, session) => { if(ev==='SIGNED_IN') _saveToCookies(session); });
+    _supabase.auth.getSession().then(({data:{session}}) => _saveToCookies(session));
+    return;
+  }
+
+  // Case B: PWA에서 실행 — Safari OAuth가 저장한 쿠키 세션 복원
+  if (_standalone) {
+    _delCk('pwa_g_pending'); // 잔여 플래그 정리
+    const _at = _getCk('pwa_at');
+    const _rt = _getCk('pwa_rt');
+    if (_at && _rt) {
+      _delCk('pwa_at'); _delCk('pwa_rt');
+      try {
+        const { data } = await _supabase.auth.setSession({ access_token: _at, refresh_token: _rt });
+        if (data.session) {
+          userEmail = data.session.user.email;
+          const isNewUser = !localStorage.getItem('userEmail');
+          localStorage.setItem('userEmail', userEmail);
+          isGuest = false;
+          if (isNewUser) sendAppEmail('welcome', userEmail);
+          goTo('screen-welcome');
+          updateHomeStats();
+          return;
+        }
+      } catch(e){ console.warn('PWA 세션 쿠키 복원 실패:', e); }
+    }
+  }
+
+  // 잔여 플래그 정리 (OAuth 없이 페이지 재진입 시)
+  if (_fromPWA && !_isOAuthCb) _delCk('pwa_g_pending');
 
   try {
     // 매직 링크 클릭 후 리디렉션된 경우 Supabase가 URL 해시에서 세션을 자동 처리
@@ -1785,5 +1844,17 @@ function downloadShareCard(){
 function watchVideoAd(){ document.getElementById('video-ad-overlay').classList.remove('visible'); alert('광고 재생 후 복습 기능 잠금 해제! (연동 예정)'); }
 function skipVideoAd(){ document.getElementById('video-ad-overlay').classList.remove('visible'); }
 </script>
+
+<!-- iOS PWA 구글 로그인 후 Safari → 앱 복귀 안내 -->
+<div id="pwa-return-overlay" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:9999;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;text-align:center;">
+  <div style="font-size:60px;margin-bottom:20px;">✅</div>
+  <h2 style="font-family:'Syne',sans-serif;font-size:24px;font-weight:800;margin-bottom:12px;color:var(--text)">로그인 완료!</h2>
+  <p style="color:var(--text2);font-size:15px;line-height:1.8;margin-bottom:28px;">구글 계정으로 로그인됐어요.<br>이제 앱으로 돌아가세요.</p>
+  <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:18px;padding:20px 24px;margin-bottom:32px;width:100%;max-width:320px;box-shadow:var(--shadow)">
+    <div style="font-size:13px;color:var(--text2);margin-bottom:10px;">돌아가는 방법</div>
+    <div style="font-size:15px;color:var(--text);font-weight:500;">📱 홈 화면 → <strong>3분 영어</strong> 아이콘 탭</div>
+  </div>
+  <p style="font-size:12px;color:var(--text2);opacity:0.7;">로그인 정보가 앱에 자동으로 연결돼요</p>
+</div>
 </body>
 </html>
